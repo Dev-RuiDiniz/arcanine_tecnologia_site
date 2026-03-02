@@ -1,2 +1,2 @@
-// Shared validation schemas (Zod) will be added here.
-export {};
+export * from "@/schemas/admin/page";
+export * from "@/schemas/forms/contact";
