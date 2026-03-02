@@ -2,23 +2,8 @@ import { NextResponse } from "next/server";
 
 import type { ApiResult } from "@/lib/api/contracts";
 import { requirePermission } from "@/lib/auth/guards";
-import { createPageSchema } from "@/schemas/admin/page";
-import { createPage, listPages } from "@/services/page.service";
-
-const toPageResponse = (page: {
-  id: string;
-  slug: string;
-  title: string;
-  description: string | null;
-  published: boolean;
-  content: unknown;
-  createdAt: Date;
-  updatedAt: Date;
-}) => ({
-  ...page,
-  createdAt: page.createdAt.toISOString(),
-  updatedAt: page.updatedAt.toISOString(),
-});
+import { cmsPagePublishSchema, cmsPageUpsertSchema } from "@/schemas/admin/cms-page";
+import { listCmsPages, publishCmsPage, saveCmsPageDraft } from "@/services/page.service";
 
 export async function GET() {
   try {
@@ -33,16 +18,58 @@ export async function GET() {
       );
     }
 
-    const pages = await listPages();
-    return NextResponse.json<ApiResult<ReturnType<typeof toPageResponse>[]>>({
+    const pages = await listCmsPages();
+    return NextResponse.json<ApiResult<typeof pages>>({
       ok: true,
-      data: pages.map(toPageResponse),
+      data: pages,
     });
   } catch {
     return NextResponse.json<ApiResult<never>>(
       {
         ok: false,
-        error: "Unexpected error while loading pages",
+        error: "Unexpected error while loading cms pages",
+      },
+      { status: 500 },
+    );
+  }
+}
+
+export async function PUT(request: Request) {
+  try {
+    const permissionCheck = await requirePermission("pages:edit");
+    if (!permissionCheck.ok) {
+      return NextResponse.json<ApiResult<never>>(
+        {
+          ok: false,
+          error: permissionCheck.error,
+        },
+        { status: permissionCheck.error === "Unauthorized" ? 401 : 403 },
+      );
+    }
+
+    const body = await request.json();
+    const parsed = cmsPageUpsertSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json<ApiResult<never>>(
+        {
+          ok: false,
+          error: "Invalid cms page payload",
+          issues: parsed.error.flatten(),
+        },
+        { status: 400 },
+      );
+    }
+
+    const page = await saveCmsPageDraft(parsed.data);
+    return NextResponse.json<ApiResult<typeof page>>({
+      ok: true,
+      data: page,
+    });
+  } catch {
+    return NextResponse.json<ApiResult<never>>(
+      {
+        ok: false,
+        error: "Unexpected error while saving cms page draft",
       },
       { status: 500 },
     );
@@ -63,29 +90,28 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const parsed = createPageSchema.safeParse(body);
-
+    const parsed = cmsPagePublishSchema.safeParse(body);
     if (!parsed.success) {
       return NextResponse.json<ApiResult<never>>(
         {
           ok: false,
-          error: "Invalid page payload",
+          error: "Invalid cms page publish payload",
           issues: parsed.error.flatten(),
         },
         { status: 400 },
       );
     }
 
-    const page = await createPage(parsed.data);
-    return NextResponse.json<ApiResult<ReturnType<typeof toPageResponse>>>({
+    const page = await publishCmsPage(parsed.data.slug);
+    return NextResponse.json<ApiResult<typeof page>>({
       ok: true,
-      data: toPageResponse(page),
+      data: page,
     });
   } catch {
     return NextResponse.json<ApiResult<never>>(
       {
         ok: false,
-        error: "Unexpected error while creating page",
+        error: "Unexpected error while publishing cms page",
       },
       { status: 500 },
     );

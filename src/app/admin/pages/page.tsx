@@ -1,6 +1,8 @@
 import { redirect } from "next/navigation";
 
+import { CmsPagesEditor } from "@/components/admin/pages/cms-pages-editor";
 import { requirePermission } from "@/lib/auth/guards";
+import { listCmsPages } from "@/services/page.service";
 
 export default async function AdminPagesPage() {
   const permissionCheck = await requirePermission("pages:view");
@@ -8,12 +10,7 @@ export default async function AdminPagesPage() {
     redirect("/admin");
   }
 
-  return (
-    <section className="rounded-md border border-zinc-200 bg-zinc-50 p-4">
-      <h2 className="text-lg font-semibold text-zinc-900">Paginas</h2>
-      <p className="mt-1 text-sm text-zinc-600">
-        Visualizacao de paginas habilitada para o papel atual.
-      </p>
-    </section>
-  );
+  const pages = await listCmsPages();
+
+  return <CmsPagesEditor initialPages={pages} />;
 }

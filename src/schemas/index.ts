@@ -1,3 +1,4 @@
+export * from "@/schemas/admin/cms-page";
 export * from "@/schemas/admin/page";
 export * from "@/schemas/forms/budget";
 export * from "@/schemas/forms/contact";

@@ -19,6 +19,13 @@ enum LeadStatus {
   LOST
 }
 
+enum PageContentKind {
+  GENERIC
+  HOME
+  ABOUT
+  SERVICES
+}
+
 enum RoleName {
   ADMIN
   EDITOR
@@ -43,6 +50,10 @@ model Page {
   slug        String   @unique
   title       String
   description String?
+  contentKind PageContentKind @default(GENERIC)
+  schemaVersion Int    @default(1)
+  draftContent Json?
+  publishedContent Json?
   content     Json?
   published   Boolean  @default(false)
   createdAt   DateTime @default(now())
