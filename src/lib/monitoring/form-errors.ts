@@ -1,3 +1,5 @@
+import { registerTelemetryEvent } from "@/lib/telemetry/events";
+
 type ContactFormErrorContext =
   | "api-contact-route"
   | "api-forms-contact-route"
@@ -42,5 +44,11 @@ export const reportContactFormError = async (
   };
 
   console.error("[contact-form-error]", payload);
+  await registerTelemetryEvent({
+    category: "FORM_ERROR",
+    context,
+    message,
+    details,
+  });
   await sendWebhookIfConfigured(payload);
 };

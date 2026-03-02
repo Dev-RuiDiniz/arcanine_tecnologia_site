@@ -1,3 +1,5 @@
+import { registerTelemetryEvent } from "@/lib/telemetry/events";
+
 type EmailDeliveryContext = "lead-internal-notification" | "lead-client-confirmation";
 
 type EmailDeliveryErrorPayload = {
@@ -38,5 +40,11 @@ export const reportEmailDeliveryError = async (
   };
 
   console.error("[email-delivery-error]", payload);
+  await registerTelemetryEvent({
+    category: "EMAIL_DELIVERY_ERROR",
+    context,
+    message,
+    details,
+  });
   await sendWebhookIfConfigured(payload);
 };
