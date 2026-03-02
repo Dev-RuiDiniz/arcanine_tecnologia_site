@@ -31,10 +31,13 @@
     "email:delivery:validate-config": "node scripts/validate-email-delivery-config.mjs",
     "telemetry:validate-config": "node scripts/validate-telemetry-config.mjs",
     "cms:schema-versioning:validate": "node scripts/validate-cms-schema-versioning.mjs",
-    "media:storage:validate-config": "node scripts/validate-media-storage-config.mjs"
+    "media:storage:validate-config": "node scripts/validate-media-storage-config.mjs",
+    "blog:preview:indexability:validate": "node scripts/validate-blog-preview-indexability.mjs"
   },
   "dependencies": {
     "@prisma/client": "^6.16.2",
+    "@tiptap/react": "^3.20.0",
+    "@tiptap/starter-kit": "^3.20.0",
     "bcryptjs": "^3.0.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -46,6 +49,7 @@
     "radix-ui": "^1.4.3",
     "react": "19.2.3",
     "react-dom": "19.2.3",
+    "sanitize-html": "^2.17.1",
     "tailwind-merge": "^3.5.0",
     "zod": "^4.3.6"
   },
@@ -55,6 +59,7 @@
     "@types/nodemailer": "^7.0.11",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/sanitize-html": "^2.16.0",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
     "lighthouse": "^12.8.2",

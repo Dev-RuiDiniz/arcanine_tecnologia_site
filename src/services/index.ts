@@ -9,5 +9,6 @@ export * from "@/services/legal-pages.service";
 export * from "@/services/lead.service";
 export * from "@/services/media.service";
 export * from "@/services/page.service";
+export * from "@/services/post.service";
 export * from "@/services/service-content.service";
 export * from "@/services/site-config.service";

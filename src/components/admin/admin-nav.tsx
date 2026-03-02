@@ -11,6 +11,7 @@ const navItems = [
   { href: "/admin", label: "Dashboard", permission: "dashboard:view" as const },
   { href: "/admin/pages", label: "Paginas", permission: "pages:view" as const },
   { href: "/admin/cases", label: "Cases", permission: "pages:view" as const },
+  { href: "/admin/posts", label: "Posts", permission: "pages:view" as const },
   { href: "/admin/leads", label: "Leads", permission: "leads:view" as const },
   { href: "/admin/settings", label: "Configuracoes", permission: "settings:manage" as const },
 ];
