@@ -30,7 +30,8 @@
     "lead:upload-limits:validate": "node scripts/validate-lead-upload-limits.mjs",
     "email:delivery:validate-config": "node scripts/validate-email-delivery-config.mjs",
     "telemetry:validate-config": "node scripts/validate-telemetry-config.mjs",
-    "cms:schema-versioning:validate": "node scripts/validate-cms-schema-versioning.mjs"
+    "cms:schema-versioning:validate": "node scripts/validate-cms-schema-versioning.mjs",
+    "media:storage:validate-config": "node scripts/validate-media-storage-config.mjs"
   },
   "dependencies": {
     "@prisma/client": "^6.16.2",

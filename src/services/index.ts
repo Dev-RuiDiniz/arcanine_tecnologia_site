@@ -1,4 +1,5 @@
 export * from "@/services/about-content.service";
+export * from "@/services/admin-case.service";
 export * from "@/services/admin-dashboard.service";
 export * from "@/services/budget-form.service";
 export * from "@/services/case-content.service";
@@ -6,6 +7,7 @@ export * from "@/services/contact-form.service";
 export * from "@/services/home-content.service";
 export * from "@/services/legal-pages.service";
 export * from "@/services/lead.service";
+export * from "@/services/media.service";
 export * from "@/services/page.service";
 export * from "@/services/service-content.service";
 export * from "@/services/site-config.service";

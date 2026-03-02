@@ -19,6 +19,7 @@ const rolePermissionsMap: Record<AppRole, AppPermission[]> = {
 const adminRoutePermissions: { pattern: RegExp; permission: AppPermission }[] = [
   { pattern: /^\/admin$/, permission: "dashboard:view" },
   { pattern: /^\/admin\/pages$/, permission: "pages:view" },
+  { pattern: /^\/admin\/cases$/, permission: "pages:view" },
   { pattern: /^\/admin\/leads$/, permission: "leads:view" },
   { pattern: /^\/admin\/settings$/, permission: "settings:manage" },
 ];

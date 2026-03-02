@@ -143,6 +143,8 @@ model CaseContent {
   summary           String
   challenge         String
   solution          String
+  ctaLabel          String?
+  ctaUrl            String?
   results           String[]
   stack             String[]
   imageUrls         String[]
@@ -155,4 +157,33 @@ model CaseContent {
   published         Boolean  @default(false)
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
+  mediaLinks        CaseMedia[]
+}
+
+model MediaAsset {
+  id           String      @id
+  provider     String
+  storageKey   String
+  url          String
+  optimizedUrl String
+  bytes        Int
+  mimeType     String
+  width        Int?
+  height       Int?
+  altText      String?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  caseLinks    CaseMedia[]
+}
+
+model CaseMedia {
+  caseId    String
+  mediaId   String
+  position  Int       @default(0)
+  createdAt DateTime  @default(now())
+  case      CaseContent @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  media     MediaAsset  @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+
+  @@id([caseId, mediaId])
+  @@index([mediaId])
 }

@@ -2,8 +2,8 @@ import { NextResponse } from "next/server";
 
 import type { ApiResult } from "@/lib/api/contracts";
 import { requirePermission } from "@/lib/auth/guards";
-import { caseContentSchema } from "@/schemas/public/case-content";
-import { listPublicCases, upsertCaseContent } from "@/services/case-content.service";
+import { caseAdminSchema, deleteCaseAdminSchema } from "@/schemas/admin/case-admin";
+import { deleteAdminCaseById, listAdminCases, saveAdminCase } from "@/services/admin-case.service";
 
 export async function GET() {
   const permissionCheck = await requirePermission("pages:view");
@@ -17,7 +17,7 @@ export async function GET() {
     );
   }
 
-  const cases = await listPublicCases();
+  const cases = await listAdminCases();
   return NextResponse.json<ApiResult<typeof cases>>({
     ok: true,
     data: cases,
@@ -38,28 +38,70 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json();
-    const parsed = caseContentSchema.safeParse(body);
+    const parsed = caseAdminSchema.safeParse(body);
     if (!parsed.success) {
       return NextResponse.json<ApiResult<never>>(
         {
           ok: false,
-          error: "Invalid case content payload",
+          error: "Invalid case payload",
           issues: parsed.error.flatten(),
         },
         { status: 400 },
       );
     }
 
-    await upsertCaseContent(parsed.data);
-    return NextResponse.json<ApiResult<{ updated: true }>>({
+    const saved = await saveAdminCase(parsed.data);
+    return NextResponse.json<ApiResult<typeof saved>>({
       ok: true,
-      data: { updated: true },
+      data: saved,
     });
-  } catch {
+  } catch (error) {
     return NextResponse.json<ApiResult<never>>(
       {
         ok: false,
-        error: "Unable to save case content",
+        error: error instanceof Error ? error.message : "Unable to save case content",
+      },
+      { status: 500 },
+    );
+  }
+}
+
+export async function DELETE(request: Request) {
+  const permissionCheck = await requirePermission("pages:edit");
+  if (!permissionCheck.ok) {
+    return NextResponse.json<ApiResult<never>>(
+      {
+        ok: false,
+        error: permissionCheck.error,
+      },
+      { status: permissionCheck.error === "Unauthorized" ? 401 : 403 },
+    );
+  }
+
+  try {
+    const body = await request.json();
+    const parsed = deleteCaseAdminSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json<ApiResult<never>>(
+        {
+          ok: false,
+          error: "Invalid case delete payload",
+          issues: parsed.error.flatten(),
+        },
+        { status: 400 },
+      );
+    }
+
+    await deleteAdminCaseById(parsed.data.id);
+    return NextResponse.json<ApiResult<{ deleted: true }>>({
+      ok: true,
+      data: { deleted: true },
+    });
+  } catch (error) {
+    return NextResponse.json<ApiResult<never>>(
+      {
+        ok: false,
+        error: error instanceof Error ? error.message : "Unable to delete case",
       },
       { status: 500 },
     );
