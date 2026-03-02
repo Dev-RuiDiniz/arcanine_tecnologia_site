@@ -22,7 +22,8 @@
     "rbac:validate-env": "node scripts/validate-rbac-env.mjs",
     "responsive:validate": "node scripts/validate-responsive-layout.mjs",
     "perf:home:lighthouse": "node scripts/measure-home-lighthouse.mjs",
-    "about:validate-envs": "node scripts/validate-about-envs.mjs"
+    "about:validate-envs": "node scripts/validate-about-envs.mjs",
+    "services:indexability:validate": "node scripts/validate-services-indexability.mjs"
   },
   "dependencies": {
     "@prisma/client": "^6.16.2",

@@ -5,9 +5,8 @@ import { CtaLink } from "@/components/public/cta-link";
 const navItems = [
   { label: "Home", href: "/" },
   { label: "Sobre", href: "/sobre" },
-  { label: "Servicos", href: "#servicos" },
-  { label: "Diferenciais", href: "#diferenciais" },
-  { label: "Contato", href: "#contato" },
+  { label: "Servicos", href: "/servicos" },
+  { label: "Contato", href: "/#contato" },
 ];
 
 export const PublicHeader = () => {
