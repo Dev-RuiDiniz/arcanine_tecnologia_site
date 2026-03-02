@@ -1,6 +1,6 @@
 import { compare } from "bcryptjs";
 
-export const verifyAdminPassword = async (
+export const verifyPasswordAgainstHashes = async (
   plainPassword: string,
   currentHash?: string,
   nextHash?: string,

@@ -16,7 +16,9 @@
     "prisma:migrate:dev": "prisma migrate dev",
     "prisma:migrate:deploy": "prisma migrate deploy",
     "prisma:studio": "prisma studio",
-    "auth:hash-password": "node scripts/hash-password.mjs"
+    "rbac:seed": "node scripts/seed-rbac.mjs",
+    "auth:hash-password": "node scripts/hash-password.mjs",
+    "rbac:validate-env": "node scripts/validate-rbac-env.mjs"
   },
   "dependencies": {
     "@prisma/client": "^6.16.2",

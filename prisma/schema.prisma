@@ -12,6 +12,12 @@ enum LeadSource {
   BUDGET_FORM
 }
 
+enum RoleName {
+  ADMIN
+  EDITOR
+  VIEWER
+}
+
 model Lead {
   id          String     @id @default(cuid())
   name        String
@@ -33,4 +39,32 @@ model Page {
   published   Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model User {
+  id        String     @id @default(cuid())
+  email     String     @unique
+  name      String?
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  userRoles UserRole[]
+}
+
+model Role {
+  id        String     @id @default(cuid())
+  name      RoleName   @unique
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  userRoles UserRole[]
+}
+
+model UserRole {
+  id         String   @id @default(cuid())
+  userId     String
+  roleId     String
+  assignedAt DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role       Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, roleId])
 }

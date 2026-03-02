@@ -1,17 +1,15 @@
 "use server";
 
-import { getServerSession } from "next-auth";
-
-import { authOptions } from "@/lib/auth/options";
+import { requirePermission } from "@/lib/auth/guards";
 import { createPageSchema, type CreatePageInput } from "@/schemas/admin/page";
 import { createPage, listPages } from "@/services/page.service";
 
 export const createPageAction = async (input: CreatePageInput) => {
-  const session = await getServerSession(authOptions);
-  if (!session?.user || session.user.role !== "ADMIN") {
+  const permissionCheck = await requirePermission("pages:edit");
+  if (!permissionCheck.ok) {
     return {
       ok: false as const,
-      error: "Unauthorized",
+      error: permissionCheck.error,
     };
   }
 
@@ -32,11 +30,11 @@ export const createPageAction = async (input: CreatePageInput) => {
 };
 
 export const listPagesAction = async () => {
-  const session = await getServerSession(authOptions);
-  if (!session?.user || session.user.role !== "ADMIN") {
+  const permissionCheck = await requirePermission("pages:view");
+  if (!permissionCheck.ok) {
     return {
       ok: false as const,
-      error: "Unauthorized",
+      error: permissionCheck.error,
     };
   }
 

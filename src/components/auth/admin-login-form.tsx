@@ -62,9 +62,9 @@ export const AdminLoginForm = ({ callbackUrl }: AdminLoginFormProps) => {
   return (
     <main className="flex min-h-screen items-center justify-center bg-zinc-100 px-4">
       <section className="w-full max-w-md rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
-        <h1 className="text-2xl font-semibold text-zinc-900">Login do Admin</h1>
+        <h1 className="text-2xl font-semibold text-zinc-900">Login do Painel</h1>
         <p className="mt-1 text-sm text-zinc-600">
-          Entre com as credenciais configuradas no ambiente.
+          Entre com credenciais de Admin, Editor ou Viewer configuradas no ambiente.
         </p>
 
         <form onSubmit={onSubmit} className="mt-6 space-y-4">

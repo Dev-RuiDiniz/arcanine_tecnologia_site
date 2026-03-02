@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
 
 import type { ApiResult } from "@/lib/api/contracts";
-import { authOptions } from "@/lib/auth/options";
+import { requirePermission } from "@/lib/auth/guards";
 import { createPageSchema } from "@/schemas/admin/page";
 import { createPage, listPages } from "@/services/page.service";
 
@@ -23,14 +22,14 @@ const toPageResponse = (page: {
 
 export async function GET() {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user || session.user.role !== "ADMIN") {
+    const permissionCheck = await requirePermission("pages:view");
+    if (!permissionCheck.ok) {
       return NextResponse.json<ApiResult<never>>(
         {
           ok: false,
-          error: "Unauthorized",
+          error: permissionCheck.error,
         },
-        { status: 401 },
+        { status: permissionCheck.error === "Unauthorized" ? 401 : 403 },
       );
     }
 
@@ -52,14 +51,14 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user || session.user.role !== "ADMIN") {
+    const permissionCheck = await requirePermission("pages:edit");
+    if (!permissionCheck.ok) {
       return NextResponse.json<ApiResult<never>>(
         {
           ok: false,
-          error: "Unauthorized",
+          error: permissionCheck.error,
         },
-        { status: 401 },
+        { status: permissionCheck.error === "Unauthorized" ? 401 : 403 },
       );
     }
 

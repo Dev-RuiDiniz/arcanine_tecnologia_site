@@ -2,7 +2,9 @@ import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { z } from "zod";
 
-import { verifyAdminPassword } from "@/lib/auth/password";
+import { verifyPasswordAgainstHashes } from "@/lib/auth/password";
+import type { AppRole } from "@/lib/auth/rbac";
+import { getAuthUsersFromEnv } from "@/lib/auth/users";
 
 const credentialsSchema = z.object({
   email: z.string().email(),
@@ -31,31 +33,28 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
-        const configuredEmail = process.env.AUTH_ADMIN_EMAIL;
-        const currentHash = process.env.AUTH_ADMIN_PASSWORD_HASH_CURRENT;
-        const nextHash = process.env.AUTH_ADMIN_PASSWORD_HASH_NEXT;
-        if (!configuredEmail) {
+        const authUsers = getAuthUsersFromEnv();
+        const authUser = authUsers.find(
+          (candidateUser) => candidateUser.email.toLowerCase() === parsed.data.email.toLowerCase(),
+        );
+        if (!authUser) {
           return null;
         }
 
-        if (parsed.data.email.toLowerCase() !== configuredEmail.toLowerCase()) {
-          return null;
-        }
-
-        const isPasswordValid = await verifyAdminPassword(
+        const isPasswordValid = await verifyPasswordAgainstHashes(
           parsed.data.password,
-          currentHash,
-          nextHash,
+          authUser.passwordHashCurrent,
+          authUser.passwordHashNext,
         );
         if (!isPasswordValid) {
           return null;
         }
 
         return {
-          id: "admin",
-          email: configuredEmail,
-          name: "Arcanine Admin",
-          role: "ADMIN",
+          id: authUser.id,
+          email: authUser.email,
+          name: authUser.name,
+          role: authUser.role,
         };
       },
     }),
@@ -69,7 +68,7 @@ export const authOptions: NextAuthOptions = {
     },
     session: async ({ session, token }) => {
       if (session.user) {
-        session.user.role = (token.role as "ADMIN") ?? "ADMIN";
+        session.user.role = (token.role as AppRole) ?? "VIEWER";
       }
       return session;
     },

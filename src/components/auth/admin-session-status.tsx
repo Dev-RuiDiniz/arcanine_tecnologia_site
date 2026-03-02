@@ -2,6 +2,8 @@
 
 import { useSession } from "next-auth/react";
 
+import { getRolePermissions } from "@/lib/auth/rbac";
+
 export const AdminSessionStatus = () => {
   const { data: session, status } = useSession();
 
@@ -21,9 +23,11 @@ export const AdminSessionStatus = () => {
     );
   }
 
+  const permissions = getRolePermissions(session?.user?.role ?? "VIEWER").join(", ");
+
   return (
     <p className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
-      Autenticado como {session?.user?.email} ({session?.user?.role}).
+      Autenticado como {session?.user?.email} ({session?.user?.role}). Permissoes: {permissions}.
     </p>
   );
 };

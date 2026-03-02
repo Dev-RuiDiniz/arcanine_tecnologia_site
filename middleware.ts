@@ -1,18 +1,49 @@
-import { withAuth } from "next-auth/middleware";
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
+import { getToken } from "next-auth/jwt";
 
-export default withAuth({
-  pages: {
-    signIn: "/admin/login",
-  },
-  callbacks: {
-    authorized: ({ token, req }) => {
-      if (req.nextUrl.pathname === "/admin/login") {
-        return true;
-      }
-      return token?.role === "ADMIN";
-    },
-  },
-});
+import { getAdminRouteRequiredPermission, hasPermission, type AppRole } from "@/lib/auth/rbac";
+
+export async function middleware(request: NextRequest) {
+  const { pathname, origin } = request.nextUrl;
+  const isLoginRoute = pathname === "/admin/login";
+  const isAdminRoute = pathname.startsWith("/admin");
+
+  if (!isAdminRoute) {
+    return NextResponse.next();
+  }
+
+  const token = await getToken({
+    req: request,
+    secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET,
+  });
+
+  if (!token) {
+    if (isLoginRoute) {
+      return NextResponse.next();
+    }
+
+    const loginUrl = new URL("/admin/login", origin);
+    loginUrl.searchParams.set("callbackUrl", pathname);
+    return NextResponse.redirect(loginUrl);
+  }
+
+  if (isLoginRoute) {
+    return NextResponse.redirect(new URL("/admin", origin));
+  }
+
+  const requiredPermission = getAdminRouteRequiredPermission(pathname);
+  if (!requiredPermission) {
+    return NextResponse.redirect(new URL("/admin", origin));
+  }
+
+  const userRole = token.role as AppRole | undefined;
+  if (!userRole || !hasPermission(userRole, requiredPermission)) {
+    return NextResponse.redirect(new URL("/admin", origin));
+  }
+
+  return NextResponse.next();
+}
 
 export const config = {
   matcher: ["/admin/:path*"],
