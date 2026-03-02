@@ -4,6 +4,7 @@ import { CtaLink } from "@/components/public/cta-link";
 
 const navItems = [
   { label: "Home", href: "/" },
+  { label: "Sobre", href: "/sobre" },
   { label: "Servicos", href: "#servicos" },
   { label: "Diferenciais", href: "#diferenciais" },
   { label: "Contato", href: "#contato" },
@@ -18,13 +19,13 @@ export const PublicHeader = () => {
         </Link>
         <nav className="hidden items-center gap-5 md:flex">
           {navItems.map((item) => (
-            <a
+            <Link
               key={item.href}
-              href={item.href}
+              href={item.href as `/${string}` | `#${string}`}
               className="text-sm text-zinc-600 hover:text-zinc-900"
             >
               {item.label}
-            </a>
+            </Link>
           ))}
         </nav>
         <CtaLink href="/admin/login" variant="primary">

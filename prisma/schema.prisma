@@ -86,3 +86,18 @@ model HomeContent {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 }
+
+model AboutContent {
+  id               String   @id @default(cuid())
+  key              String   @unique @default("default")
+  title            String
+  subtitle         String
+  historyTitle     String
+  historyText      String
+  values           String[]
+  methodology      String[]
+  stack            String[]
+  published        Boolean  @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
