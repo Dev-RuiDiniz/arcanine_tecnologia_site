@@ -1,6 +1,8 @@
 import { redirect } from "next/navigation";
 
+import { LeadsManager } from "@/components/admin/leads/leads-manager";
 import { requirePermission } from "@/lib/auth/guards";
+import { listAdminLeads } from "@/services/lead-admin.service";
 
 export default async function AdminLeadsPage() {
   const permissionCheck = await requirePermission("leads:view");
@@ -8,12 +10,6 @@ export default async function AdminLeadsPage() {
     redirect("/admin");
   }
 
-  return (
-    <section className="rounded-md border border-zinc-200 bg-zinc-50 p-4">
-      <h2 className="text-lg font-semibold text-zinc-900">Leads</h2>
-      <p className="mt-1 text-sm text-zinc-600">
-        Visualizacao de leads disponivel conforme politica de RBAC.
-      </p>
-    </section>
-  );
+  const leads = await listAdminLeads();
+  return <LeadsManager initialLeads={leads} />;
 }

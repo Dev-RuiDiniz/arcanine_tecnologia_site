@@ -49,6 +49,18 @@ model Lead {
   status      LeadStatus @default(NEW)
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
+  notes       LeadNote[]
+}
+
+model LeadNote {
+  id          String   @id @default(cuid())
+  leadId      String
+  note        String
+  authorEmail String?
+  createdAt   DateTime @default(now())
+  lead        Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  @@index([leadId])
 }
 
 model Page {
@@ -238,4 +250,19 @@ model PostTag {
 
   @@id([postId, tagId])
   @@index([tagId])
+}
+
+model AppSetting {
+  key       String   @id
+  value     Json
+  updatedAt DateTime @updatedAt
+}
+
+model AdminUserPermission {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  role      RoleName
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

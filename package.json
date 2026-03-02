@@ -32,7 +32,8 @@
     "telemetry:validate-config": "node scripts/validate-telemetry-config.mjs",
     "cms:schema-versioning:validate": "node scripts/validate-cms-schema-versioning.mjs",
     "media:storage:validate-config": "node scripts/validate-media-storage-config.mjs",
-    "blog:preview:indexability:validate": "node scripts/validate-blog-preview-indexability.mjs"
+    "blog:preview:indexability:validate": "node scripts/validate-blog-preview-indexability.mjs",
+    "admin:sensitive-access:validate": "node scripts/validate-admin-sensitive-access.mjs"
   },
   "dependencies": {
     "@prisma/client": "^6.16.2",

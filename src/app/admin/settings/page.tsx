@@ -1,6 +1,11 @@
 import { redirect } from "next/navigation";
 
+import { SettingsManager } from "@/components/admin/settings/settings-manager";
 import { requirePermission } from "@/lib/auth/guards";
+import {
+  listAdminUsersWithPermissions,
+  loadGeneralSettings,
+} from "@/services/settings-admin.service";
 
 export default async function AdminSettingsPage() {
   const permissionCheck = await requirePermission("settings:manage");
@@ -8,10 +13,10 @@ export default async function AdminSettingsPage() {
     redirect("/admin");
   }
 
-  return (
-    <section className="rounded-md border border-zinc-200 bg-zinc-50 p-4">
-      <h2 className="text-lg font-semibold text-zinc-900">Configuracoes</h2>
-      <p className="mt-1 text-sm text-zinc-600">Acesso exclusivo para perfil ADMIN.</p>
-    </section>
-  );
+  const [general, users] = await Promise.all([
+    loadGeneralSettings(),
+    listAdminUsersWithPermissions(),
+  ]);
+
+  return <SettingsManager initialGeneral={general} initialUsers={users} />;
 }

@@ -5,6 +5,7 @@ import { z } from "zod";
 import { verifyPasswordAgainstHashes } from "@/lib/auth/password";
 import type { AppRole } from "@/lib/auth/rbac";
 import { getAuthUsersFromEnv } from "@/lib/auth/users";
+import { resolveAdminUserPermissionOverride } from "@/services/settings-admin.service";
 
 const credentialsSchema = z.object({
   email: z.string().email(),
@@ -41,6 +42,19 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
+        let resolvedRole: AppRole = authUser.role;
+        try {
+          const override = await resolveAdminUserPermissionOverride(authUser.email);
+          if (override && !override.active) {
+            return null;
+          }
+          if (override) {
+            resolvedRole = override.role;
+          }
+        } catch {
+          // Keep env role when permission overrides are unavailable.
+        }
+
         const isPasswordValid = await verifyPasswordAgainstHashes(
           parsed.data.password,
           authUser.passwordHashCurrent,
@@ -54,7 +68,7 @@ export const authOptions: NextAuthOptions = {
           id: authUser.id,
           email: authUser.email,
           name: authUser.name,
-          role: authUser.role,
+          role: resolvedRole,
         };
       },
     }),

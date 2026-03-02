@@ -15,7 +15,13 @@ type SessionAuthResult =
     };
 
 export const requirePermission = async (permission: AppPermission): Promise<SessionAuthResult> => {
-  const session = await getServerSession(authOptions);
+  let session;
+  try {
+    session = await getServerSession(authOptions);
+  } catch {
+    return { ok: false, error: "Unauthorized" };
+  }
+
   if (!session?.user) {
     return { ok: false, error: "Unauthorized" };
   }
