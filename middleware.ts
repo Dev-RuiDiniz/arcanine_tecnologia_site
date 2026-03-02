@@ -29,7 +29,11 @@ export async function middleware(request: NextRequest) {
   }
 
   if (isLoginRoute) {
-    return NextResponse.redirect(new URL("/admin", origin));
+    const userRole = token.role as AppRole | undefined;
+    if (userRole && hasPermission(userRole, "dashboard:view")) {
+      return NextResponse.redirect(new URL("/admin", origin));
+    }
+    return NextResponse.next();
   }
 
   const requiredPermission = getAdminRouteRequiredPermission(pathname);
@@ -39,7 +43,9 @@ export async function middleware(request: NextRequest) {
 
   const userRole = token.role as AppRole | undefined;
   if (!userRole || !hasPermission(userRole, requiredPermission)) {
-    return NextResponse.redirect(new URL("/admin", origin));
+    const loginUrl = new URL("/admin/login", origin);
+    loginUrl.searchParams.set("callbackUrl", pathname);
+    return NextResponse.redirect(loginUrl);
   }
 
   return NextResponse.next();

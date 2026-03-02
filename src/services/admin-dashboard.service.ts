@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db/prisma";
+import { appLogger } from "@/lib/monitoring/logger";
 import { listTelemetryEvents } from "@/lib/telemetry/events";
 
 type DashboardAlert = {
@@ -80,38 +81,50 @@ const resolveAnalyticsSource = () => {
 
 export const loadAdminDashboardData = async (): Promise<AdminDashboardData> => {
   const now = new Date();
-  const [leadsDay, leadsWeek, leadsMonth, totalPages, publishedPages] = await Promise.all([
-    prisma.lead.count({ where: { createdAt: { gte: startOfDay(now) } } }),
-    prisma.lead.count({ where: { createdAt: { gte: startOfWeek(now) } } }),
-    prisma.lead.count({ where: { createdAt: { gte: startOfMonth(now) } } }),
-    prisma.page.count(),
-    prisma.page.count({ where: { published: true } }),
-  ]);
-
   const timelineDates = buildLast7Days();
-  const trendStart = timelineDates[0];
-  const trendLeads = await prisma.lead.findMany({
-    where: {
-      createdAt: {
-        gte: trendStart,
-      },
-    },
-    select: {
-      createdAt: true,
-    },
-    orderBy: {
-      createdAt: "asc",
-    },
-  });
-
   const trendMap = new Map<string, number>();
   for (const day of timelineDates) {
     trendMap.set(formatDateKey(day), 0);
   }
 
-  for (const lead of trendLeads) {
-    const dateKey = formatDateKey(lead.createdAt);
-    trendMap.set(dateKey, (trendMap.get(dateKey) || 0) + 1);
+  let leadsDay = 0;
+  let leadsWeek = 0;
+  let leadsMonth = 0;
+  let totalPages = 0;
+  let publishedPages = 0;
+
+  try {
+    [leadsDay, leadsWeek, leadsMonth, totalPages, publishedPages] = await Promise.all([
+      prisma.lead.count({ where: { createdAt: { gte: startOfDay(now) } } }),
+      prisma.lead.count({ where: { createdAt: { gte: startOfWeek(now) } } }),
+      prisma.lead.count({ where: { createdAt: { gte: startOfMonth(now) } } }),
+      prisma.page.count(),
+      prisma.page.count({ where: { published: true } }),
+    ]);
+
+    const trendStart = timelineDates[0];
+    const trendLeads = await prisma.lead.findMany({
+      where: {
+        createdAt: {
+          gte: trendStart,
+        },
+      },
+      select: {
+        createdAt: true,
+      },
+      orderBy: {
+        createdAt: "asc",
+      },
+    });
+
+    for (const lead of trendLeads) {
+      const dateKey = formatDateKey(lead.createdAt);
+      trendMap.set(dateKey, (trendMap.get(dateKey) || 0) + 1);
+    }
+  } catch (error) {
+    appLogger.warn("admin.dashboard.db-unavailable", {
+      error: error instanceof Error ? error.message : "Unknown dashboard DB failure",
+    });
   }
 
   const leadTrendLast7Days = Array.from(trendMap.entries()).map(([date, total]) => ({
