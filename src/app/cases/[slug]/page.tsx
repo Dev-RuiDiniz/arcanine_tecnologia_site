@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { PublicLayout } from "@/components/public/public-layout";
 import { SectionHeading } from "@/components/public/section-heading";
 import { SectionShell } from "@/components/public/section-shell";
+import { buildPublicMetadata } from "@/lib/seo/public-metadata";
 import { getPublicCaseBySlug, listPublicCases } from "@/services/case-content.service";
 
 type PageProps = {
@@ -23,19 +24,19 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const caseItem = await getPublicCaseBySlug(slug);
 
   if (!caseItem) {
-    return {
-      title: "Case nao encontrado | Arcanine Tecnologia",
-      robots: { index: false, follow: false },
-    };
+    return buildPublicMetadata({
+      title: "Case nao encontrado",
+      description: "A pagina de case solicitada nao foi encontrada.",
+      path: `/cases/${slug}`,
+      noIndex: true,
+    });
   }
 
-  return {
-    title: caseItem.seoTitle ?? `${caseItem.title} | Arcanine Tecnologia`,
+  return buildPublicMetadata({
+    title: caseItem.seoTitle ?? caseItem.title,
     description: caseItem.seoDescription ?? caseItem.summary,
-    alternates: {
-      canonical: `/cases/${caseItem.slug}`,
-    },
-  };
+    path: `/cases/${caseItem.slug}`,
+  });
 }
 
 export default async function CaseDetailPage({ params }: PageProps) {

@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import type { GlobalSiteInfo } from "@/lib/site/global-site-info";
 
 type PublicFooterProps = {
@@ -40,6 +42,12 @@ export const PublicFooter = ({ siteInfo }: PublicFooterProps) => {
             © {new Date().getFullYear()} {siteInfo.companyName}. Todos os direitos reservados.
           </p>
           <div className="flex flex-wrap gap-3">
+            <Link href="/politica-de-privacidade" className="hover:text-zinc-100">
+              Politica de Privacidade
+            </Link>
+            <Link href="/termos-de-uso" className="hover:text-zinc-100">
+              Termos de Uso
+            </Link>
             {siteInfo.socials.map((social) => (
               <a
                 key={social.label}

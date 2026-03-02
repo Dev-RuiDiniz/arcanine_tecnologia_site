@@ -1,9 +1,18 @@
+import type { Metadata } from "next";
+
 import { PublicLayout } from "@/components/public/public-layout";
 import { SectionHeading } from "@/components/public/section-heading";
 import { SectionShell } from "@/components/public/section-shell";
+import { buildPublicMetadata } from "@/lib/seo/public-metadata";
 import { loadPublicAboutContent } from "@/services/about-content.service";
 
 export const revalidate = 300;
+
+export const metadata: Metadata = buildPublicMetadata({
+  title: "Sobre",
+  description: "Conheca a historia, valores, metodologia e stack da Arcanine Tecnologia.",
+  path: "/sobre",
+});
 
 export default async function SobrePage() {
   const aboutContent = await loadPublicAboutContent();

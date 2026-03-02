@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { PublicLayout } from "@/components/public/public-layout";
 import { SectionHeading } from "@/components/public/section-heading";
 import { SectionShell } from "@/components/public/section-shell";
+import { buildPublicMetadata } from "@/lib/seo/public-metadata";
 import { getPublicServiceBySlug, listPublicServices } from "@/services/service-content.service";
 
 type PageProps = {
@@ -24,22 +25,19 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const service = await getPublicServiceBySlug(slug);
 
   if (!service) {
-    return {
-      title: "Servico nao encontrado | Arcanine Tecnologia",
-      robots: {
-        index: false,
-        follow: false,
-      },
-    };
+    return buildPublicMetadata({
+      title: "Servico nao encontrado",
+      description: "A pagina de servico solicitada nao foi encontrada.",
+      path: `/servicos/${slug}`,
+      noIndex: true,
+    });
   }
 
-  return {
-    title: service.seoTitle ?? `${service.name} | Arcanine Tecnologia`,
+  return buildPublicMetadata({
+    title: service.seoTitle ?? service.name,
     description: service.seoDescription ?? service.summary,
-    alternates: {
-      canonical: `/servicos/${service.slug}`,
-    },
-  };
+    path: `/servicos/${service.slug}`,
+  });
 }
 
 export default async function ServicoDetalhePage({ params }: PageProps) {

@@ -5,18 +5,17 @@ import Link from "next/link";
 import { PublicLayout } from "@/components/public/public-layout";
 import { SectionHeading } from "@/components/public/section-heading";
 import { SectionShell } from "@/components/public/section-shell";
+import { buildPublicMetadata } from "@/lib/seo/public-metadata";
 import { listPublicCases } from "@/services/case-content.service";
 
 export const revalidate = 300;
 
-export const metadata: Metadata = {
-  title: "Cases | Arcanine Tecnologia",
+export const metadata: Metadata = buildPublicMetadata({
+  title: "Cases",
   description:
     "Conheca cases da Arcanine Tecnologia com foco em resultado, stack aplicada e impacto de negocio.",
-  alternates: {
-    canonical: "/cases",
-  },
-};
+  path: "/cases",
+});
 
 export default async function CasesPage() {
   const cases = await listPublicCases();

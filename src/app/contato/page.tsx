@@ -4,18 +4,17 @@ import { ContactForm } from "@/components/contact/contact-form";
 import { PublicLayout } from "@/components/public/public-layout";
 import { SectionHeading } from "@/components/public/section-heading";
 import { SectionShell } from "@/components/public/section-shell";
+import { buildPublicMetadata } from "@/lib/seo/public-metadata";
 import { loadPublicSiteConfig } from "@/services/site-config.service";
 
 export const revalidate = 300;
 
-export const metadata: Metadata = {
-  title: "Contato | Arcanine Tecnologia",
+export const metadata: Metadata = buildPublicMetadata({
+  title: "Contato",
   description:
     "Entre em contato com a Arcanine Tecnologia por formulario, WhatsApp ou e-mail para iniciar seu projeto.",
-  alternates: {
-    canonical: "/contato",
-  },
-};
+  path: "/contato",
+});
 
 export default async function ContatoPage() {
   const siteInfo = await loadPublicSiteConfig();

@@ -1,11 +1,21 @@
+import type { Metadata } from "next";
+
 import { CtaLink } from "@/components/public/cta-link";
 import { PublicLayout } from "@/components/public/public-layout";
 import { SectionHeading } from "@/components/public/section-heading";
 import { SectionShell } from "@/components/public/section-shell";
+import { buildPublicMetadata } from "@/lib/seo/public-metadata";
 import { loadPublicHomeContent } from "@/services/home-content.service";
 import { loadPublicSiteConfig } from "@/services/site-config.service";
 
 export const revalidate = 300;
+
+export const metadata: Metadata = buildPublicMetadata({
+  title: "Home",
+  description:
+    "Arcanine Tecnologia: desenvolvimento de sites, sistemas, automacoes, integracoes e IA aplicada com foco em resultado.",
+  path: "/",
+});
 
 export default async function Home() {
   const [homeContent, siteConfig] = await Promise.all([

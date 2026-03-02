@@ -4,18 +4,17 @@ import Link from "next/link";
 import { PublicLayout } from "@/components/public/public-layout";
 import { SectionHeading } from "@/components/public/section-heading";
 import { SectionShell } from "@/components/public/section-shell";
+import { buildPublicMetadata } from "@/lib/seo/public-metadata";
 import { listPublicServices } from "@/services/service-content.service";
 
 export const revalidate = 300;
 
-export const metadata: Metadata = {
-  title: "Servicos | Arcanine Tecnologia",
+export const metadata: Metadata = buildPublicMetadata({
+  title: "Servicos",
   description:
     "Conheca os servicos da Arcanine Tecnologia: sites institucionais, sistemas web, automacoes, integracoes e IA aplicada.",
-  alternates: {
-    canonical: "/servicos",
-  },
-};
+  path: "/servicos",
+});
 
 export default async function ServicosPage() {
   const services = await listPublicServices();
