@@ -18,6 +18,7 @@ const globalSiteInfoSchema = z.object({
   email: z.string().email(),
   phone: z.string(),
   whatsapp: z.string(),
+  mapEmbedUrl: z.string().url().optional(),
   address: addressSchema,
   socials: z.array(socialLinkSchema),
 });
@@ -29,6 +30,7 @@ const fallbackGlobalInfo: GlobalSiteInfo = {
   email: "contato@arcanine.com.br",
   phone: "+55 11 3000-4000",
   whatsapp: "+55 11 99999-9999",
+  mapEmbedUrl: "https://www.google.com/maps?q=Avenida+Paulista,+1000,+Sao+Paulo&output=embed",
   address: {
     street: "Avenida Paulista, 1000",
     city: "Sao Paulo",
@@ -64,6 +66,7 @@ export const getGlobalSiteInfo = (): GlobalSiteInfo => {
     email: process.env.SITE_CONTACT_EMAIL || fallbackGlobalInfo.email,
     phone: process.env.SITE_CONTACT_PHONE || fallbackGlobalInfo.phone,
     whatsapp: process.env.SITE_CONTACT_WHATSAPP || fallbackGlobalInfo.whatsapp,
+    mapEmbedUrl: process.env.SITE_MAP_EMBED_URL || fallbackGlobalInfo.mapEmbedUrl,
     address: {
       street: process.env.SITE_ADDRESS_STREET || fallbackGlobalInfo.address.street,
       city: process.env.SITE_ADDRESS_CITY || fallbackGlobalInfo.address.city,

@@ -8,6 +8,7 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const result = await submitContactForm(body);
+
     if (!result.ok) {
       return NextResponse.json<ApiResult<never>>(
         {
@@ -24,7 +25,7 @@ export async function POST(request: Request) {
       data: result.data,
     });
   } catch (error) {
-    await reportContactFormError("api-forms-contact-route", error);
+    await reportContactFormError("api-contact-route", error);
     return NextResponse.json<ApiResult<never>>(
       {
         ok: false,

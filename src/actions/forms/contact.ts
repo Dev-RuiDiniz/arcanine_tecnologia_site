@@ -1,25 +1,20 @@
 "use server";
 
-import { contactLeadSchema, type ContactLeadInput } from "@/schemas/forms/contact";
-import { createLead } from "@/services/lead.service";
+import { reportContactFormError } from "@/lib/monitoring/form-errors";
+import type { ContactLeadInput } from "@/schemas/forms/contact";
+import { submitContactForm } from "@/services/contact-form.service";
 
 export const submitContactLeadAction = async (input: ContactLeadInput) => {
-  const parsed = contactLeadSchema.safeParse(input);
-  if (!parsed.success) {
+  try {
+    const result = await submitContactForm(input);
+    return result;
+  } catch (error) {
+    await reportContactFormError("contact-action", error, { input });
     return {
       ok: false as const,
-      error: "Invalid contact payload",
-      issues: parsed.error.flatten(),
+      error: "Unexpected error while creating lead",
     };
   }
-
-  const lead = await createLead(parsed.data);
-
-  return {
-    ok: true as const,
-    data: {
-      id: lead.id,
-      createdAt: lead.createdAt.toISOString(),
-    },
-  };
 };
+
+export const submitContactFormAction = submitContactLeadAction;

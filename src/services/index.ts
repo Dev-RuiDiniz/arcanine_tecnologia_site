@@ -1,5 +1,6 @@
 export * from "@/services/about-content.service";
 export * from "@/services/case-content.service";
+export * from "@/services/contact-form.service";
 export * from "@/services/home-content.service";
 export * from "@/services/lead.service";
 export * from "@/services/page.service";
