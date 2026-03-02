@@ -2,6 +2,9 @@
 
 import { useState } from "react";
 
+import { submitContactForm as submitContactFormRequest } from "@/lib/api/forms";
+import { contactLeadSchema } from "@/schemas/forms/contact";
+
 type ContactFormProps = {
   defaultProjectType?: string;
 };
@@ -22,30 +25,45 @@ export const ContactForm = ({ defaultProjectType = "site" }: ContactFormProps) =
   const [loading, setLoading] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [isError, setIsError] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
 
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setLoading(true);
     setFeedback(null);
     setIsError(false);
+    setFieldErrors({});
+
+    const parsed = contactLeadSchema.safeParse({
+      name,
+      email,
+      phone,
+      projectType,
+      message,
+    });
+
+    if (!parsed.success) {
+      setLoading(false);
+      setIsError(true);
+      setFeedback("Revise os campos obrigatorios antes de enviar.");
+      setFieldErrors(parsed.error.flatten().fieldErrors);
+      return;
+    }
 
     try {
-      const response = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name,
-          email,
-          phone,
-          projectType,
-          message,
-        }),
-      });
-
-      const payload = await response.json();
-      if (!response.ok || !payload.ok) {
+      const payload = await submitContactFormRequest(parsed.data);
+      if (!payload.ok) {
         setIsError(true);
         setFeedback(payload.error || "Nao foi possivel enviar o contato.");
+        if (
+          payload.issues &&
+          typeof payload.issues === "object" &&
+          "fieldErrors" in payload.issues
+        ) {
+          setFieldErrors(
+            (payload.issues as { fieldErrors?: Record<string, string[]> }).fieldErrors || {},
+          );
+        }
         return;
       }
 
@@ -77,6 +95,9 @@ export const ContactForm = ({ defaultProjectType = "site" }: ContactFormProps) =
           className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-500"
           placeholder="Seu nome"
         />
+        {fieldErrors.name?.[0] ? (
+          <span className="mt-1 block text-xs text-red-600">{fieldErrors.name[0]}</span>
+        ) : null}
       </label>
 
       <label className="block">
@@ -89,6 +110,9 @@ export const ContactForm = ({ defaultProjectType = "site" }: ContactFormProps) =
           className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-500"
           placeholder="voce@empresa.com"
         />
+        {fieldErrors.email?.[0] ? (
+          <span className="mt-1 block text-xs text-red-600">{fieldErrors.email[0]}</span>
+        ) : null}
       </label>
 
       <label className="block">
@@ -99,6 +123,9 @@ export const ContactForm = ({ defaultProjectType = "site" }: ContactFormProps) =
           className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-500"
           placeholder="+55 11 99999-9999"
         />
+        {fieldErrors.phone?.[0] ? (
+          <span className="mt-1 block text-xs text-red-600">{fieldErrors.phone[0]}</span>
+        ) : null}
       </label>
 
       <label className="block">
@@ -114,6 +141,9 @@ export const ContactForm = ({ defaultProjectType = "site" }: ContactFormProps) =
             </option>
           ))}
         </select>
+        {fieldErrors.projectType?.[0] ? (
+          <span className="mt-1 block text-xs text-red-600">{fieldErrors.projectType[0]}</span>
+        ) : null}
       </label>
 
       <label className="block">
@@ -125,6 +155,9 @@ export const ContactForm = ({ defaultProjectType = "site" }: ContactFormProps) =
           className="min-h-32 w-full rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-500"
           placeholder="Conte um pouco sobre seu objetivo e contexto."
         />
+        {fieldErrors.message?.[0] ? (
+          <span className="mt-1 block text-xs text-red-600">{fieldErrors.message[0]}</span>
+        ) : null}
       </label>
 
       {feedback ? (

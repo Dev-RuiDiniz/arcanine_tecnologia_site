@@ -1,4 +1,8 @@
-type ContactFormErrorContext = "api-contact-route" | "api-forms-contact-route" | "contact-action";
+type ContactFormErrorContext =
+  | "api-contact-route"
+  | "api-forms-contact-route"
+  | "api-budget-route"
+  | "contact-action";
 
 type ContactFormErrorPayload = {
   context: ContactFormErrorContext;

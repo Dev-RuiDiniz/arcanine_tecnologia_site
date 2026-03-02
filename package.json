@@ -26,7 +26,8 @@
     "services:indexability:validate": "node scripts/validate-services-indexability.mjs",
     "cases:cdn:validate": "node scripts/validate-cases-cdn-delivery.mjs",
     "contact:endpoint:validate": "node scripts/validate-contact-endpoint.mjs",
-    "legal:preview:validate": "node scripts/validate-legal-preview-routes.mjs"
+    "legal:preview:validate": "node scripts/validate-legal-preview-routes.mjs",
+    "lead:upload-limits:validate": "node scripts/validate-lead-upload-limits.mjs"
   },
   "dependencies": {
     "@prisma/client": "^6.16.2",

@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 
+import { BudgetRequestForm } from "@/components/contact/budget-request-form";
 import { ContactForm } from "@/components/contact/contact-form";
 import { PublicLayout } from "@/components/public/public-layout";
 import { SectionHeading } from "@/components/public/section-heading";
 import { SectionShell } from "@/components/public/section-shell";
+import { resolveLeadAttachmentLimits } from "@/lib/env/upload-limits";
 import { buildPublicMetadata } from "@/lib/seo/public-metadata";
 import { loadPublicSiteConfig } from "@/services/site-config.service";
 
@@ -18,6 +20,7 @@ export const metadata: Metadata = buildPublicMetadata({
 
 export default async function ContatoPage() {
   const siteInfo = await loadPublicSiteConfig();
+  const attachmentLimits = resolveLeadAttachmentLimits();
   const whatsappDigits = siteInfo.whatsapp.replace(/[^\d]/g, "");
   const whatsappLink = `https://wa.me/${whatsappDigits}`;
 
@@ -32,10 +35,16 @@ export default async function ContatoPage() {
       </SectionShell>
 
       <SectionShell className="bg-zinc-100">
-        <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-          <ContactForm />
+        <div className="space-y-8">
+          <div className="grid gap-6 xl:grid-cols-2">
+            <ContactForm />
+            <BudgetRequestForm
+              maxAttachmentSizeMb={attachmentLimits.maxSizeMb}
+              allowedAttachmentMimeTypes={attachmentLimits.allowedMimeTypes}
+            />
+          </div>
 
-          <aside className="space-y-4">
+          <aside className="grid gap-4 lg:grid-cols-2">
             <article className="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm">
               <h2 className="text-lg font-semibold text-zinc-900">Canais diretos</h2>
               <p className="mt-3 text-sm text-zinc-700">E-mail: {siteInfo.email}</p>
