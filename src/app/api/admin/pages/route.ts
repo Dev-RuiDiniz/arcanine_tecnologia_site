@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
 
 import type { ApiResult } from "@/lib/api/contracts";
+import { authOptions } from "@/lib/auth/options";
 import { createPageSchema } from "@/schemas/admin/page";
 import { createPage, listPages } from "@/services/page.service";
 
@@ -21,6 +23,17 @@ const toPageResponse = (page: {
 
 export async function GET() {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user || session.user.role !== "ADMIN") {
+      return NextResponse.json<ApiResult<never>>(
+        {
+          ok: false,
+          error: "Unauthorized",
+        },
+        { status: 401 },
+      );
+    }
+
     const pages = await listPages();
     return NextResponse.json<ApiResult<ReturnType<typeof toPageResponse>[]>>({
       ok: true,
@@ -39,6 +52,17 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user || session.user.role !== "ADMIN") {
+      return NextResponse.json<ApiResult<never>>(
+        {
+          ok: false,
+          error: "Unauthorized",
+        },
+        { status: 401 },
+      );
+    }
+
     const body = await request.json();
     const parsed = createPageSchema.safeParse(body);
 
