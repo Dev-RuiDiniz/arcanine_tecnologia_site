@@ -23,7 +23,8 @@
     "responsive:validate": "node scripts/validate-responsive-layout.mjs",
     "perf:home:lighthouse": "node scripts/measure-home-lighthouse.mjs",
     "about:validate-envs": "node scripts/validate-about-envs.mjs",
-    "services:indexability:validate": "node scripts/validate-services-indexability.mjs"
+    "services:indexability:validate": "node scripts/validate-services-indexability.mjs",
+    "cases:cdn:validate": "node scripts/validate-cases-cdn-delivery.mjs"
   },
   "dependencies": {
     "@prisma/client": "^6.16.2",

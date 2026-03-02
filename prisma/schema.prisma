@@ -116,3 +116,24 @@ model ServiceContent {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 }
+
+model CaseContent {
+  id                String   @id @default(cuid())
+  slug              String   @unique
+  title             String
+  summary           String
+  challenge         String
+  solution          String
+  results           String[]
+  stack             String[]
+  imageUrls         String[]
+  testimonialQuote  String?
+  testimonialAuthor String?
+  testimonialRole   String?
+  showTestimonial   Boolean  @default(false)
+  seoTitle          String?
+  seoDescription    String?
+  published         Boolean  @default(false)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
