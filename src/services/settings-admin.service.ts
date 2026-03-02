@@ -10,6 +10,7 @@ import {
   generalSettingsSchema,
 } from "@/schemas/admin/settings-admin";
 import { prisma } from "@/lib/db/prisma";
+import { sanitizeOptionalPlainText, sanitizePlainText } from "@/lib/security/input-sanitization";
 import { getGlobalSiteInfo } from "@/lib/site/global-site-info";
 
 type GeneralSettingsInput = z.infer<typeof generalSettingsSchema>;
@@ -77,6 +78,26 @@ export const loadGeneralSettings = async (): Promise<GeneralSettingsInput> => {
 };
 
 export const saveGeneralSettings = async (input: GeneralSettingsInput) => {
+  const sanitizedInput: GeneralSettingsInput = {
+    companyName: sanitizePlainText(input.companyName),
+    email: sanitizePlainText(input.email).toLowerCase(),
+    phone: sanitizePlainText(input.phone),
+    whatsapp: sanitizePlainText(input.whatsapp),
+    addressStreet: sanitizePlainText(input.addressStreet),
+    addressCity: sanitizePlainText(input.addressCity),
+    addressState: sanitizePlainText(input.addressState),
+    addressZip: sanitizePlainText(input.addressZip),
+    addressCountry: sanitizePlainText(input.addressCountry),
+    socialLinksJson: input.socialLinksJson,
+    mapEmbedUrl: sanitizeOptionalPlainText(input.mapEmbedUrl),
+    integrations: {
+      formErrorsWebhookUrl: sanitizeOptionalPlainText(input.integrations.formErrorsWebhookUrl),
+      emailErrorsWebhookUrl: sanitizeOptionalPlainText(input.integrations.emailErrorsWebhookUrl),
+      gaId: sanitizeOptionalPlainText(input.integrations.gaId),
+      plausibleDomain: sanitizeOptionalPlainText(input.integrations.plausibleDomain),
+    },
+  };
+
   const exists = await prisma.$queryRaw<{ key: string }[]>(Prisma.sql`
     SELECT "key" FROM "public"."AppSetting" WHERE "key" = ${GENERAL_SETTINGS_KEY} LIMIT 1
   `);
@@ -84,13 +105,13 @@ export const saveGeneralSettings = async (input: GeneralSettingsInput) => {
   if (exists.length > 0) {
     await prisma.$executeRaw(Prisma.sql`
       UPDATE "public"."AppSetting"
-      SET "value" = ${input}::jsonb, "updatedAt" = NOW()
+      SET "value" = ${sanitizedInput}::jsonb, "updatedAt" = NOW()
       WHERE "key" = ${GENERAL_SETTINGS_KEY}
     `);
   } else {
     await prisma.$executeRaw(Prisma.sql`
       INSERT INTO "public"."AppSetting" ("key", "value", "updatedAt")
-      VALUES (${GENERAL_SETTINGS_KEY}, ${input}::jsonb, NOW())
+      VALUES (${GENERAL_SETTINGS_KEY}, ${sanitizedInput}::jsonb, NOW())
     `);
   }
 };
@@ -123,8 +144,9 @@ export const listAdminUsersWithPermissions = async () => {
 
 export const saveAdminUsersPermissions = async (input: AdminUsersUpdateInput) => {
   for (const user of input.users) {
+    const sanitizedEmail = sanitizePlainText(user.email).toLowerCase();
     const existing = await prisma.$queryRaw<{ id: string }[]>(Prisma.sql`
-      SELECT "id" FROM "public"."AdminUserPermission" WHERE "email" = ${user.email} LIMIT 1
+      SELECT "id" FROM "public"."AdminUserPermission" WHERE "email" = ${sanitizedEmail} LIMIT 1
     `);
 
     if (existing.length > 0) {
@@ -136,7 +158,7 @@ export const saveAdminUsersPermissions = async (input: AdminUsersUpdateInput) =>
     } else {
       await prisma.$executeRaw(Prisma.sql`
         INSERT INTO "public"."AdminUserPermission" ("id", "email", "role", "active", "updatedAt")
-        VALUES (${randomUUID()}, ${user.email}, ${user.role}::"public"."RoleName", ${user.active}, NOW())
+        VALUES (${randomUUID()}, ${sanitizedEmail}, ${user.role}::"public"."RoleName", ${user.active}, NOW())
       `);
     }
   }

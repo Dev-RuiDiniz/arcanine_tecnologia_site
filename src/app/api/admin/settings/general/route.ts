@@ -1,8 +1,11 @@
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
 
 import type { ApiResult } from "@/lib/api/contracts";
 import { requirePermission } from "@/lib/auth/guards";
+import { authOptions } from "@/lib/auth/options";
 import { generalSettingsSchema } from "@/schemas/admin/settings-admin";
+import { registerAdminAuditEvent } from "@/services/admin-audit.service";
 import { loadGeneralSettings, saveGeneralSettings } from "@/services/settings-admin.service";
 
 export async function GET() {
@@ -31,6 +34,7 @@ export async function PUT(request: Request) {
   }
 
   try {
+    const session = await getServerSession(authOptions);
     const body = await request.json();
     const parsed = generalSettingsSchema.safeParse(body);
     if (!parsed.success) {
@@ -41,6 +45,11 @@ export async function PUT(request: Request) {
     }
 
     await saveGeneralSettings(parsed.data);
+    await registerAdminAuditEvent({
+      action: "settings.general.updated",
+      resource: "settings",
+      actorEmail: session?.user?.email || undefined,
+    });
     return NextResponse.json<ApiResult<{ updated: true }>>({
       ok: true,
       data: { updated: true },

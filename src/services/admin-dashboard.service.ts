@@ -3,7 +3,7 @@ import { listTelemetryEvents } from "@/lib/telemetry/events";
 
 type DashboardAlert = {
   id: string;
-  category: "FORM_ERROR" | "EMAIL_DELIVERY_ERROR";
+  category: "FORM_ERROR" | "EMAIL_DELIVERY_ERROR" | "ADMIN_AUDIT";
   context: string;
   message: string;
   timestamp: string;

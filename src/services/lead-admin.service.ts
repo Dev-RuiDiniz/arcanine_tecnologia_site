@@ -4,6 +4,7 @@ import { randomUUID } from "node:crypto";
 import type { LeadFiltersInput } from "@/schemas/admin/lead-admin";
 
 import { prisma } from "@/lib/db/prisma";
+import { sanitizeOptionalPlainText, sanitizePlainText } from "@/lib/security/input-sanitization";
 
 type LeadRow = {
   id: string;
@@ -138,6 +139,9 @@ export const updateLeadStatus = async (params: {
   note?: string;
   authorEmail?: string;
 }) => {
+  const sanitizedNote = sanitizeOptionalPlainText(params.note);
+  const sanitizedAuthorEmail = sanitizeOptionalPlainText(params.authorEmail)?.toLowerCase();
+
   await prisma.$transaction(async (tx) => {
     await tx.$executeRaw(Prisma.sql`
       UPDATE "public"."Lead"
@@ -145,10 +149,10 @@ export const updateLeadStatus = async (params: {
       WHERE "id" = ${params.leadId}
     `);
 
-    if (params.note) {
+    if (sanitizedNote) {
       await tx.$executeRaw(Prisma.sql`
         INSERT INTO "public"."LeadNote" ("id", "leadId", "note", "authorEmail")
-        VALUES (${randomUUID()}, ${params.leadId}, ${params.note}, ${params.authorEmail ?? null})
+        VALUES (${randomUUID()}, ${params.leadId}, ${sanitizePlainText(sanitizedNote)}, ${sanitizedAuthorEmail ?? null})
       `);
     }
   });

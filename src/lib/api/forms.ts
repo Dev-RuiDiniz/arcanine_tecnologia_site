@@ -1,5 +1,6 @@
 import { apiRequest } from "@/lib/api/client";
 import type { ApiResult } from "@/lib/api/contracts";
+import { getCsrfHeader } from "@/lib/security/csrf-client";
 import type { BudgetLeadInput } from "@/schemas/forms/budget";
 import type { ContactLeadInput } from "@/schemas/forms/contact";
 
@@ -20,6 +21,7 @@ export const submitContactForm = async (input: ContactLeadInput) => {
 };
 
 export const submitBudgetForm = async (input: BudgetLeadInput, attachment?: File) => {
+  const csrfHeader = await getCsrfHeader();
   const formData = new FormData();
   formData.set("contactName", input.contactName);
   formData.set("companyName", input.companyName);
@@ -35,6 +37,7 @@ export const submitBudgetForm = async (input: BudgetLeadInput, attachment?: File
 
   const response = await fetch("/api/forms/budget", {
     method: "POST",
+    headers: csrfHeader,
     body: formData,
   });
 

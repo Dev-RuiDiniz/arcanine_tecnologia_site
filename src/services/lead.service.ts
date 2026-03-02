@@ -1,14 +1,15 @@
 import { prisma } from "@/lib/db/prisma";
+import { sanitizeOptionalPlainText, sanitizePlainText } from "@/lib/security/input-sanitization";
 import type { BudgetAttachmentInput, BudgetLeadInput, ContactLeadInput } from "@/schemas";
 
 export const createLead = async (input: ContactLeadInput) => {
   return prisma.lead.create({
     data: {
-      name: input.name,
-      email: input.email,
-      phone: input.phone,
-      projectType: input.projectType,
-      message: input.message,
+      name: sanitizePlainText(input.name),
+      email: sanitizePlainText(input.email).toLowerCase(),
+      phone: sanitizeOptionalPlainText(input.phone),
+      projectType: sanitizeOptionalPlainText(input.projectType),
+      message: sanitizePlainText(input.message),
       source: "CONTACT_FORM",
     },
   });
@@ -35,13 +36,24 @@ export const createBudgetLead = async (
   input: BudgetLeadInput,
   attachment?: BudgetAttachmentInput,
 ) => {
+  const sanitizedInput: BudgetLeadInput = {
+    contactName: sanitizePlainText(input.contactName),
+    companyName: sanitizePlainText(input.companyName),
+    email: sanitizePlainText(input.email).toLowerCase(),
+    phone: sanitizePlainText(input.phone),
+    service: sanitizePlainText(input.service),
+    budgetRange: sanitizePlainText(input.budgetRange),
+    timeline: sanitizePlainText(input.timeline),
+    projectBrief: sanitizePlainText(input.projectBrief),
+  };
+
   return prisma.lead.create({
     data: {
-      name: input.contactName,
-      email: input.email,
-      phone: input.phone,
-      projectType: input.service,
-      message: buildBudgetLeadMessage(input, attachment),
+      name: sanitizedInput.contactName,
+      email: sanitizedInput.email,
+      phone: sanitizedInput.phone,
+      projectType: sanitizedInput.service,
+      message: buildBudgetLeadMessage(sanitizedInput, attachment),
       source: "BUDGET_FORM",
     },
   });

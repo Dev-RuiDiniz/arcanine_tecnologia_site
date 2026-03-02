@@ -5,6 +5,7 @@ import type { ApiResult } from "@/lib/api/contracts";
 import { requirePermission } from "@/lib/auth/guards";
 import { authOptions } from "@/lib/auth/options";
 import { leadFiltersSchema, leadStatusUpdateSchema } from "@/schemas/admin/lead-admin";
+import { registerAdminAuditEvent } from "@/services/admin-audit.service";
 import { listAdminLeads, updateLeadStatus } from "@/services/lead-admin.service";
 
 export async function GET(request: Request) {
@@ -67,6 +68,16 @@ export async function PATCH(request: Request) {
       status: parsed.data.status,
       note: parsed.data.note,
       authorEmail: session?.user?.email || undefined,
+    });
+    await registerAdminAuditEvent({
+      action: "lead.status.updated",
+      resource: "leads",
+      actorEmail: session?.user?.email || undefined,
+      details: {
+        leadId: parsed.data.leadId,
+        status: parsed.data.status,
+        hasNote: Boolean(parsed.data.note),
+      },
     });
 
     return NextResponse.json<ApiResult<{ updated: true }>>({

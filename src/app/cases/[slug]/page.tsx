@@ -5,7 +5,9 @@ import { notFound } from "next/navigation";
 import { PublicLayout } from "@/components/public/public-layout";
 import { SectionHeading } from "@/components/public/section-heading";
 import { SectionShell } from "@/components/public/section-shell";
+import { JsonLd } from "@/components/seo/json-ld";
 import { buildPublicMetadata } from "@/lib/seo/public-metadata";
+import { buildBreadcrumbSchema } from "@/lib/seo/schema-org";
 import { getPublicCaseBySlug, listPublicCases } from "@/services/case-content.service";
 
 type PageProps = {
@@ -47,8 +49,15 @@ export default async function CaseDetailPage({ params }: PageProps) {
     notFound();
   }
 
+  const breadcrumbSchema = buildBreadcrumbSchema([
+    { name: "Home", path: "/" },
+    { name: "Cases", path: "/cases" },
+    { name: caseItem.title, path: `/cases/${caseItem.slug}` },
+  ]);
+
   return (
     <PublicLayout>
+      <JsonLd data={breadcrumbSchema} />
       <SectionShell className="bg-gradient-to-b from-zinc-50 via-zinc-100 to-zinc-100 pt-16 sm:pt-24">
         <SectionHeading eyebrow="Case" title={caseItem.title} description={caseItem.summary} />
       </SectionShell>

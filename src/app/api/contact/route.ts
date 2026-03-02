@@ -2,10 +2,27 @@ import { NextResponse } from "next/server";
 
 import type { ApiResult } from "@/lib/api/contracts";
 import { reportContactFormError } from "@/lib/monitoring/form-errors";
+import { enforceFormSecurity } from "@/lib/security/form-guards";
 import { submitContactForm } from "@/services/contact-form.service";
 
 export async function POST(request: Request) {
+  const blocked = await enforceFormSecurity(request);
+  if (blocked) {
+    return blocked;
+  }
+
   try {
+    const contentType = request.headers.get("content-type") || "";
+    if (!contentType.includes("application/json")) {
+      return NextResponse.json<ApiResult<never>>(
+        {
+          ok: false,
+          error: "Invalid content type",
+        },
+        { status: 400 },
+      );
+    }
+
     const body = await request.json();
     const result = await submitContactForm(body);
 

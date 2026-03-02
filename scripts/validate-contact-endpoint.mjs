@@ -19,9 +19,22 @@ const ensureServerReady = async (maxAttempts = 180) => {
 };
 
 const validate = async () => {
+  const csrfResponse = await fetch(`${BASE_URL}/api/csrf`);
+  const csrfPayload = await csrfResponse.json();
+  const csrfToken = csrfPayload?.data?.token;
+  const csrfCookie = csrfResponse.headers.get("set-cookie");
+  if (!csrfToken || !csrfCookie) {
+    throw new Error("Unable to obtain CSRF token for contact endpoint validation.");
+  }
+
+  const csrfHeaders = {
+    "x-csrf-token": csrfToken,
+    Cookie: csrfCookie.split(";")[0],
+  };
+
   const invalidResponse = await fetch(`${BASE_URL}/api/contact`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...csrfHeaders },
     body: JSON.stringify({ name: "A" }),
   });
 
@@ -31,7 +44,7 @@ const validate = async () => {
 
   const validResponse = await fetch(`${BASE_URL}/api/contact`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...csrfHeaders },
     body: JSON.stringify({
       name: "Contato Teste",
       email: "contato.teste@arcanine.com.br",

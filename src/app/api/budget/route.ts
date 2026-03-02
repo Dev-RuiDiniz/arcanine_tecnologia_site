@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import type { ApiResult } from "@/lib/api/contracts";
 import { resolveLeadAttachmentLimits } from "@/lib/env/upload-limits";
 import { reportContactFormError } from "@/lib/monitoring/form-errors";
+import { enforceFormSecurity } from "@/lib/security/form-guards";
 import { budgetLeadSchema, type BudgetAttachmentInput } from "@/schemas/forms/budget";
 import { submitBudgetForm } from "@/services/budget-form.service";
 
@@ -12,6 +13,11 @@ const getFieldValue = (formData: FormData, key: string) => {
 };
 
 export async function POST(request: Request) {
+  const blocked = await enforceFormSecurity(request);
+  if (blocked) {
+    return blocked;
+  }
+
   try {
     const formData = await request.formData();
 

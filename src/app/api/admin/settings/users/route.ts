@@ -1,8 +1,11 @@
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
 
 import type { ApiResult } from "@/lib/api/contracts";
 import { requirePermission } from "@/lib/auth/guards";
+import { authOptions } from "@/lib/auth/options";
 import { adminUserPermissionsUpdateSchema } from "@/schemas/admin/settings-admin";
+import { registerAdminAuditEvent } from "@/services/admin-audit.service";
 import {
   listAdminUsersWithPermissions,
   saveAdminUsersPermissions,
@@ -34,6 +37,7 @@ export async function PUT(request: Request) {
   }
 
   try {
+    const session = await getServerSession(authOptions);
     const body = await request.json();
     const parsed = adminUserPermissionsUpdateSchema.safeParse(body);
     if (!parsed.success) {
@@ -44,6 +48,18 @@ export async function PUT(request: Request) {
     }
 
     await saveAdminUsersPermissions(parsed.data);
+    await registerAdminAuditEvent({
+      action: "settings.users-permissions.updated",
+      resource: "settings",
+      actorEmail: session?.user?.email || undefined,
+      details: {
+        users: parsed.data.users.map((user) => ({
+          email: user.email,
+          role: user.role,
+          active: user.active,
+        })),
+      },
+    });
     return NextResponse.json<ApiResult<{ updated: true }>>({
       ok: true,
       data: { updated: true },

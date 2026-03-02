@@ -1,4 +1,5 @@
 export * from "@/services/about-content.service";
+export * from "@/services/admin-audit.service";
 export * from "@/services/admin-case.service";
 export * from "@/services/admin-dashboard.service";
 export * from "@/services/budget-form.service";

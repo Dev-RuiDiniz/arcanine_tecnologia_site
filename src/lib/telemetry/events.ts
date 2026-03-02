@@ -2,7 +2,7 @@ import { mkdir, readFile, appendFile } from "node:fs/promises";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
 
-export type TelemetryCategory = "FORM_ERROR" | "EMAIL_DELIVERY_ERROR";
+export type TelemetryCategory = "FORM_ERROR" | "EMAIL_DELIVERY_ERROR" | "ADMIN_AUDIT";
 
 export type TelemetryEvent = {
   id: string;
