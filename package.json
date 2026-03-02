@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:ci": "next build",
     "start": "next start",
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --fix",
@@ -18,7 +19,8 @@
     "prisma:studio": "prisma studio",
     "rbac:seed": "node scripts/seed-rbac.mjs",
     "auth:hash-password": "node scripts/hash-password.mjs",
-    "rbac:validate-env": "node scripts/validate-rbac-env.mjs"
+    "rbac:validate-env": "node scripts/validate-rbac-env.mjs",
+    "responsive:validate": "node scripts/validate-responsive-layout.mjs"
   },
   "dependencies": {
     "@prisma/client": "^6.16.2",
