@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 
+import { AnalyticsScripts } from "@/components/analytics/analytics-scripts";
 import { AuthSessionProvider } from "@/components/providers/auth-session-provider";
 import { JsonLd } from "@/components/seo/json-ld";
 import { buildOrganizationSchema } from "@/lib/seo/schema-org";
@@ -40,6 +41,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <AnalyticsScripts />
         <JsonLd data={organizationSchema} />
         <AuthSessionProvider>{children}</AuthSessionProvider>
       </body>

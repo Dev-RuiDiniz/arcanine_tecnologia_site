@@ -4,6 +4,8 @@ import { getServerSession } from "next-auth";
 import type { ApiResult } from "@/lib/api/contracts";
 import { requirePermission } from "@/lib/auth/guards";
 import { authOptions } from "@/lib/auth/options";
+import { appLogger } from "@/lib/monitoring/logger";
+import { captureException } from "@/lib/monitoring/sentry";
 import { adminUserPermissionsUpdateSchema } from "@/schemas/admin/settings-admin";
 import { registerAdminAuditEvent } from "@/services/admin-audit.service";
 import {
@@ -37,6 +39,7 @@ export async function PUT(request: Request) {
   }
 
   try {
+    appLogger.info("api.admin.settings.users.put.request");
     const session = await getServerSession(authOptions);
     const body = await request.json();
     const parsed = adminUserPermissionsUpdateSchema.safeParse(body);
@@ -65,6 +68,10 @@ export async function PUT(request: Request) {
       data: { updated: true },
     });
   } catch (error) {
+    captureException(error, { context: "api-admin-settings-users-put" });
+    appLogger.error("api.admin.settings.users.put.failure", {
+      error: error instanceof Error ? error.message : "Unknown users permissions update error",
+    });
     return NextResponse.json<ApiResult<never>>(
       {
         ok: false,

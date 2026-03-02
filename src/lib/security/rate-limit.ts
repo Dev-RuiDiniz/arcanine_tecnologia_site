@@ -54,3 +54,7 @@ export const resolveRateLimitKey = (request: Request) => {
 
   return request.headers.get("x-real-ip") || "unknown";
 };
+
+export const __resetRateLimitStoreForTests = () => {
+  store.clear();
+};

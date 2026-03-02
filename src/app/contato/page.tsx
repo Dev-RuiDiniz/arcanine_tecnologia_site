@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { BudgetRequestForm } from "@/components/contact/budget-request-form";
 import { ContactForm } from "@/components/contact/contact-form";
+import { CtaLink } from "@/components/public/cta-link";
 import { PublicLayout } from "@/components/public/public-layout";
 import { SectionHeading } from "@/components/public/section-heading";
 import { SectionShell } from "@/components/public/section-shell";
@@ -49,14 +50,16 @@ export default async function ContatoPage() {
               <h2 className="text-lg font-semibold text-zinc-900">Canais diretos</h2>
               <p className="mt-3 text-sm text-zinc-700">E-mail: {siteInfo.email}</p>
               <p className="mt-1 text-sm text-zinc-700">Telefone: {siteInfo.phone}</p>
-              <a
+              <CtaLink
                 href={whatsappLink}
                 target="_blank"
                 rel="noreferrer"
-                className="mt-3 inline-flex rounded-md bg-zinc-900 px-3 py-2 text-sm font-semibold text-white hover:bg-zinc-700"
+                analyticsEvent="whatsapp_click"
+                analyticsLabel="contact-direct-whatsapp"
+                className="mt-3"
               >
                 Falar no WhatsApp
-              </a>
+              </CtaLink>
             </article>
 
             <article className="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm">

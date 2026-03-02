@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import type { ApiResult } from "@/lib/api/contracts";
 import { resolveLeadAttachmentLimits } from "@/lib/env/upload-limits";
 import { reportContactFormError } from "@/lib/monitoring/form-errors";
+import { appLogger } from "@/lib/monitoring/logger";
 import { enforceFormSecurity } from "@/lib/security/form-guards";
 import { budgetLeadSchema, type BudgetAttachmentInput } from "@/schemas/forms/budget";
 import { submitBudgetForm } from "@/services/budget-form.service";
@@ -13,8 +14,10 @@ const getFieldValue = (formData: FormData, key: string) => {
 };
 
 export async function POST(request: Request) {
+  appLogger.info("api.budget.submit.request");
   const blocked = await enforceFormSecurity(request);
   if (blocked) {
+    appLogger.warn("api.budget.submit.blocked");
     return blocked;
   }
 
@@ -78,6 +81,9 @@ export async function POST(request: Request) {
     const result = await submitBudgetForm(parsed.data, attachmentMetadata);
 
     if (!result.ok) {
+      appLogger.warn("api.budget.submit.validation-failed", {
+        error: result.error,
+      });
       return NextResponse.json<ApiResult<never>>(
         {
           ok: false,
@@ -102,6 +108,9 @@ export async function POST(request: Request) {
       data: result.data,
     });
   } catch (error) {
+    appLogger.error("api.budget.submit.failure", {
+      error: error instanceof Error ? error.message : "Unknown budget route failure",
+    });
     await reportContactFormError("api-budget-route", error);
     return NextResponse.json<ApiResult<never>>(
       {

@@ -1,4 +1,6 @@
 import { registerTelemetryEvent } from "@/lib/telemetry/events";
+import { appLogger } from "@/lib/monitoring/logger";
+import { captureException } from "@/lib/monitoring/sentry";
 
 type ContactFormErrorContext =
   | "api-contact-route"
@@ -43,7 +45,11 @@ export const reportContactFormError = async (
     timestamp: new Date().toISOString(),
   };
 
-  console.error("[contact-form-error]", payload);
+  appLogger.error("contact-form-error", payload as Record<string, unknown>);
+  captureException(error, {
+    context,
+    details,
+  });
   await registerTelemetryEvent({
     category: "FORM_ERROR",
     context,

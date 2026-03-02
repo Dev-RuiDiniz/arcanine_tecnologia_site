@@ -4,6 +4,8 @@ import { NextResponse } from "next/server";
 import type { ApiResult } from "@/lib/api/contracts";
 import { requirePermission } from "@/lib/auth/guards";
 import { authOptions } from "@/lib/auth/options";
+import { appLogger } from "@/lib/monitoring/logger";
+import { captureException } from "@/lib/monitoring/sentry";
 import { leadFiltersSchema, leadStatusUpdateSchema } from "@/schemas/admin/lead-admin";
 import { registerAdminAuditEvent } from "@/services/admin-audit.service";
 import { listAdminLeads, updateLeadStatus } from "@/services/lead-admin.service";
@@ -53,6 +55,7 @@ export async function PATCH(request: Request) {
   }
 
   try {
+    appLogger.info("api.admin.leads.patch.request");
     const session = await getServerSession(authOptions);
     const body = await request.json();
     const parsed = leadStatusUpdateSchema.safeParse(body);
@@ -85,6 +88,10 @@ export async function PATCH(request: Request) {
       data: { updated: true },
     });
   } catch (error) {
+    captureException(error, { context: "api-admin-leads-patch" });
+    appLogger.error("api.admin.leads.patch.failure", {
+      error: error instanceof Error ? error.message : "Unknown lead status update error",
+    });
     return NextResponse.json<ApiResult<never>>(
       { ok: false, error: error instanceof Error ? error.message : "Unable to update lead status" },
       { status: 500 },

@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 
 import { submitBudgetForm } from "@/lib/api/forms";
+import { trackAnalyticsEvent } from "@/lib/analytics/events";
 import { budgetLeadSchema } from "@/schemas/forms/budget";
 
 type BudgetRequestFormProps = {
@@ -119,6 +120,15 @@ export const BudgetRequestForm = ({
           ? "Notificacoes por e-mail enviadas."
           : "Lead salvo, mas houve falha parcial no envio de e-mails.";
       setFeedback(`Solicitacao enviada com sucesso. ${deliveryStatus}`);
+      trackAnalyticsEvent({
+        name: "lead_submit_budget",
+        category: "lead",
+        label: "budget-form",
+        metadata: {
+          service: parsed.data.service,
+          budgetRange: parsed.data.budgetRange,
+        },
+      });
       setWhatsappLink(payload.data.whatsappLink || null);
       setContactName("");
       setCompanyName("");
@@ -312,6 +322,13 @@ export const BudgetRequestForm = ({
           href={whatsappLink}
           target="_blank"
           rel="noreferrer"
+          onClick={() => {
+            trackAnalyticsEvent({
+              name: "whatsapp_click",
+              category: "engagement",
+              label: "budget-form-followup",
+            });
+          }}
           className="inline-flex w-full justify-center rounded-md border border-zinc-300 px-4 py-2 text-sm font-semibold text-zinc-800 hover:bg-zinc-100"
         >
           Continuar no WhatsApp

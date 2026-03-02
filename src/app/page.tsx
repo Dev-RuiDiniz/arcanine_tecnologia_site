@@ -40,8 +40,19 @@ export default async function Home() {
               {homeContent.heroDescription}
             </p>
             <div className="flex flex-wrap gap-3">
-              <CtaLink href="#contato">{homeContent.ctaBudgetLabel}</CtaLink>
-              <CtaLink href={whatsappLink} variant="secondary">
+              <CtaLink
+                href="#contato"
+                analyticsEvent="budget_cta_click"
+                analyticsLabel="home-hero-budget"
+              >
+                {homeContent.ctaBudgetLabel}
+              </CtaLink>
+              <CtaLink
+                href={whatsappLink}
+                variant="secondary"
+                analyticsEvent="whatsapp_click"
+                analyticsLabel="home-hero-whatsapp"
+              >
                 {homeContent.ctaWhatsappLabel}
               </CtaLink>
             </div>
@@ -158,8 +169,19 @@ export default async function Home() {
             description="Use os canais diretos para solicitar orcamento ou iniciar atendimento no WhatsApp."
           />
           <div className="mt-6 flex flex-wrap gap-3">
-            <CtaLink href={whatsappLink}>{homeContent.ctaWhatsappLabel}</CtaLink>
-            <CtaLink href="#servicos" variant="secondary">
+            <CtaLink
+              href={whatsappLink}
+              analyticsEvent="whatsapp_click"
+              analyticsLabel="home-contact-whatsapp"
+            >
+              {homeContent.ctaWhatsappLabel}
+            </CtaLink>
+            <CtaLink
+              href="#servicos"
+              variant="secondary"
+              analyticsEvent="budget_cta_click"
+              analyticsLabel="home-contact-budget"
+            >
               {homeContent.ctaBudgetLabel}
             </CtaLink>
           </div>

@@ -28,8 +28,20 @@ jobs:
       - name: Quality checks
         run: npm run quality
 
+      - name: Validate env matrix
+        run: npm run env:matrix:validate
+
+      - name: Unit tests
+        run: npm run test:unit
+
       - name: Responsive validation
         run: npm run responsive:validate
 
       - name: Build
         run: npm run build:ci
+
+      - name: E2E basic flow
+        run: npm run test:e2e:basic
+
+      - name: Security compliance
+        run: npm run security:compliance:validate

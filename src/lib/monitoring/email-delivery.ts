@@ -1,4 +1,6 @@
 import { registerTelemetryEvent } from "@/lib/telemetry/events";
+import { appLogger } from "@/lib/monitoring/logger";
+import { captureException } from "@/lib/monitoring/sentry";
 
 type EmailDeliveryContext = "lead-internal-notification" | "lead-client-confirmation";
 
@@ -39,7 +41,11 @@ export const reportEmailDeliveryError = async (
     timestamp: new Date().toISOString(),
   };
 
-  console.error("[email-delivery-error]", payload);
+  appLogger.error("email-delivery-error", payload as Record<string, unknown>);
+  captureException(error, {
+    context,
+    details,
+  });
   await registerTelemetryEvent({
     category: "EMAIL_DELIVERY_ERROR",
     context,

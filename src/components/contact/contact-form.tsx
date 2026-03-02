@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { submitContactForm as submitContactFormRequest } from "@/lib/api/forms";
+import { trackAnalyticsEvent } from "@/lib/analytics/events";
 import { contactLeadSchema } from "@/schemas/forms/contact";
 
 type ContactFormProps = {
@@ -74,6 +75,14 @@ export const ContactForm = ({ defaultProjectType = "site" }: ContactFormProps) =
           ? "Notificacoes por e-mail enviadas."
           : "Lead salvo, mas houve falha parcial no envio de e-mails.";
       setFeedback(`Mensagem enviada com sucesso. ${deliveryStatus}`);
+      trackAnalyticsEvent({
+        name: "lead_submit_contact",
+        category: "lead",
+        label: "contact-form",
+        metadata: {
+          projectType: parsed.data.projectType || "none",
+        },
+      });
       setWhatsappLink(payload.data.whatsappLink || null);
       setName("");
       setEmail("");
@@ -183,6 +192,13 @@ export const ContactForm = ({ defaultProjectType = "site" }: ContactFormProps) =
           href={whatsappLink}
           target="_blank"
           rel="noreferrer"
+          onClick={() => {
+            trackAnalyticsEvent({
+              name: "whatsapp_click",
+              category: "engagement",
+              label: "contact-form-followup",
+            });
+          }}
           className="inline-flex w-full justify-center rounded-md border border-zinc-300 px-4 py-2 text-sm font-semibold text-zinc-800 hover:bg-zinc-100"
         >
           Continuar no WhatsApp
