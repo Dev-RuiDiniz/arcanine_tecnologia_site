@@ -2,42 +2,37 @@ import { CtaLink } from "@/components/public/cta-link";
 import { PublicLayout } from "@/components/public/public-layout";
 import { SectionHeading } from "@/components/public/section-heading";
 import { SectionShell } from "@/components/public/section-shell";
+import { loadPublicHomeContent } from "@/services/home-content.service";
+import { loadPublicSiteConfig } from "@/services/site-config.service";
 
-const services = [
-  "Sites institucionais premium",
-  "Sistemas web sob demanda",
-  "Automacoes de processo",
-  "Integrações e APIs",
-  "IA aplicada ao negocio",
-];
-
-const differentials = [
-  "Arquitetura orientada a performance",
-  "SEO tecnico desde a primeira entrega",
-  "Painel administrativo com governanca",
-  "Design responsivo mobile-first",
-];
+export const revalidate = 300;
 
 export default async function Home() {
+  const [homeContent, siteConfig] = await Promise.all([
+    loadPublicHomeContent(),
+    loadPublicSiteConfig(),
+  ]);
+  const whatsappDigits = siteConfig.whatsapp.replace(/[^\d]/g, "");
+  const whatsappLink = `https://wa.me/${whatsappDigits}`;
+
   return (
     <PublicLayout>
       <SectionShell className="bg-gradient-to-b from-teal-50 via-zinc-100 to-zinc-100 pt-16 sm:pt-24">
         <div className="grid items-center gap-10 lg:grid-cols-[1.2fr_1fr]">
           <div className="space-y-6">
             <p className="inline-flex rounded-full border border-teal-200 bg-teal-100 px-3 py-1 text-xs font-semibold tracking-[0.15em] text-teal-700 uppercase">
-              Engenharia digital
+              {homeContent.heroEyebrow}
             </p>
             <h1 className="text-4xl leading-tight font-semibold tracking-tight text-zinc-900 sm:text-5xl">
-              Site corporativo premium para acelerar leads e autoridade digital.
+              {homeContent.heroTitle}
             </h1>
             <p className="max-w-xl text-base text-zinc-600 sm:text-lg">
-              Entrega rapida com foco em performance, SEO forte e base administrativa para evolucao
-              continua.
+              {homeContent.heroDescription}
             </p>
             <div className="flex flex-wrap gap-3">
-              <CtaLink href="#contato">Solicitar orcamento</CtaLink>
-              <CtaLink href="/admin/login" variant="secondary">
-                Acessar painel
+              <CtaLink href="#contato">{homeContent.ctaBudgetLabel}</CtaLink>
+              <CtaLink href={whatsappLink} variant="secondary">
+                {homeContent.ctaWhatsappLabel}
               </CtaLink>
             </div>
           </div>
@@ -49,7 +44,8 @@ export default async function Home() {
               <li>✅ Sprint 2: arquitetura backend e banco</li>
               <li>✅ Sprint 3: autenticacao admin</li>
               <li>✅ Sprint 4: RBAC e protecao</li>
-              <li>🚀 Sprint 5: estrutura global publica</li>
+              <li>✅ Sprint 5: estrutura global publica</li>
+              <li>🚀 Sprint 6: Home dinamica</li>
             </ul>
           </div>
         </div>
@@ -62,7 +58,7 @@ export default async function Home() {
           description="Componentes e arquitetura preparados para evoluir o site institucional, CMS e captação de leads."
         />
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {services.map((service) => (
+          {homeContent.services.map((service) => (
             <article
               key={service}
               className="rounded-xl border border-zinc-200 bg-white p-4 text-sm text-zinc-700 shadow-sm"
@@ -80,7 +76,7 @@ export default async function Home() {
           description="Estrutura pensada para manutencao simples, deploy continuo e governanca de acesso."
         />
         <div className="mt-8 grid gap-4 sm:grid-cols-2">
-          {differentials.map((differential) => (
+          {homeContent.differentials.map((differential) => (
             <div
               key={differential}
               className="rounded-xl border border-zinc-200 bg-white p-4 text-sm text-zinc-700"
@@ -91,17 +87,70 @@ export default async function Home() {
         </div>
       </SectionShell>
 
+      <SectionShell className="bg-zinc-100">
+        <SectionHeading
+          eyebrow="Cases em destaque"
+          title="Resultados orientados a impacto de negocio"
+          description="Projetos com foco em performance, integracao e conversao."
+        />
+        <div className="mt-8 grid gap-4 md:grid-cols-2">
+          {homeContent.featuredCases.map((featuredCase) => (
+            <article
+              key={featuredCase.title}
+              className="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm"
+            >
+              <h3 className="text-lg font-semibold text-zinc-900">{featuredCase.title}</h3>
+              <p className="mt-2 text-sm text-zinc-600">{featuredCase.result}</p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                {featuredCase.stack.map((tech) => (
+                  <span
+                    key={tech}
+                    className="rounded-full bg-zinc-100 px-2.5 py-1 text-xs text-zinc-700"
+                  >
+                    {tech}
+                  </span>
+                ))}
+              </div>
+            </article>
+          ))}
+        </div>
+      </SectionShell>
+
+      {homeContent.showTestimonials &&
+      homeContent.testimonials &&
+      homeContent.testimonials.length > 0 ? (
+        <SectionShell className="bg-zinc-50">
+          <SectionHeading
+            eyebrow="Depoimentos"
+            title="Percepcao de quem ja evoluiu com a Arcanine"
+            description="Bloco opcional habilitado via configuracao dinamica da Home."
+          />
+          <div className="mt-8 grid gap-4 md:grid-cols-2">
+            {homeContent.testimonials.map((testimonial) => (
+              <article
+                key={`${testimonial.author}-${testimonial.role}`}
+                className="rounded-xl border border-zinc-200 bg-white p-5"
+              >
+                <p className="text-sm text-zinc-700">&quot;{testimonial.quote}&quot;</p>
+                <p className="mt-4 text-sm font-semibold text-zinc-900">{testimonial.author}</p>
+                <p className="text-xs text-zinc-500">{testimonial.role}</p>
+              </article>
+            ))}
+          </div>
+        </SectionShell>
+      ) : null}
+
       <SectionShell id="contato" className="bg-zinc-100 pb-16">
         <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm sm:p-10">
           <SectionHeading
             eyebrow="Contato"
             title="Pronto para iniciar o projeto?"
-            description="Use o painel para operacao interna ou siga para o fluxo de orcamento nas proximas sprints."
+            description="Use os canais diretos para solicitar orcamento ou iniciar atendimento no WhatsApp."
           />
           <div className="mt-6 flex flex-wrap gap-3">
-            <CtaLink href="/admin/login">Entrar no admin</CtaLink>
+            <CtaLink href={whatsappLink}>{homeContent.ctaWhatsappLabel}</CtaLink>
             <CtaLink href="#servicos" variant="secondary">
-              Ver servicos
+              {homeContent.ctaBudgetLabel}
             </CtaLink>
           </div>
         </div>

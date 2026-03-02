@@ -20,7 +20,8 @@
     "rbac:seed": "node scripts/seed-rbac.mjs",
     "auth:hash-password": "node scripts/hash-password.mjs",
     "rbac:validate-env": "node scripts/validate-rbac-env.mjs",
-    "responsive:validate": "node scripts/validate-responsive-layout.mjs"
+    "responsive:validate": "node scripts/validate-responsive-layout.mjs",
+    "perf:home:lighthouse": "node scripts/measure-home-lighthouse.mjs"
   },
   "dependencies": {
     "@prisma/client": "^6.16.2",
@@ -44,6 +45,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
+    "lighthouse": "^12.8.2",
     "prettier": "^3.8.1",
     "prettier-plugin-tailwindcss": "^0.7.2",
     "prisma": "^6.16.2",
