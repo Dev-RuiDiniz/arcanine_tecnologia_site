@@ -3,8 +3,17 @@ import type { ApiResult } from "@/lib/api/contracts";
 import type { BudgetLeadInput } from "@/schemas/forms/budget";
 import type { ContactLeadInput } from "@/schemas/forms/contact";
 
+type LeadSubmissionData = {
+  id: string;
+  createdAt: string;
+  status: string;
+  internalNotificationSent: boolean;
+  clientConfirmationSent: boolean;
+  whatsappLink?: string;
+};
+
 export const submitContactForm = async (input: ContactLeadInput) => {
-  return apiRequest<{ id: string; createdAt: string }>("/api/forms/contact", {
+  return apiRequest<LeadSubmissionData>("/api/forms/contact", {
     method: "POST",
     body: input,
   });
@@ -29,5 +38,5 @@ export const submitBudgetForm = async (input: BudgetLeadInput, attachment?: File
     body: formData,
   });
 
-  return (await response.json()) as ApiResult<{ id: string; createdAt: string }>;
+  return (await response.json()) as ApiResult<LeadSubmissionData>;
 };

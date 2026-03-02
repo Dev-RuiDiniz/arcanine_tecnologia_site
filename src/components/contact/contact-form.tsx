@@ -26,6 +26,7 @@ export const ContactForm = ({ defaultProjectType = "site" }: ContactFormProps) =
   const [feedback, setFeedback] = useState<string | null>(null);
   const [isError, setIsError] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
+  const [whatsappLink, setWhatsappLink] = useState<string | null>(null);
 
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -33,6 +34,7 @@ export const ContactForm = ({ defaultProjectType = "site" }: ContactFormProps) =
     setFeedback(null);
     setIsError(false);
     setFieldErrors({});
+    setWhatsappLink(null);
 
     const parsed = contactLeadSchema.safeParse({
       name,
@@ -67,7 +69,12 @@ export const ContactForm = ({ defaultProjectType = "site" }: ContactFormProps) =
         return;
       }
 
-      setFeedback("Mensagem enviada com sucesso. Em breve entraremos em contato.");
+      const deliveryStatus =
+        payload.data.internalNotificationSent && payload.data.clientConfirmationSent
+          ? "Notificacoes por e-mail enviadas."
+          : "Lead salvo, mas houve falha parcial no envio de e-mails.";
+      setFeedback(`Mensagem enviada com sucesso. ${deliveryStatus}`);
+      setWhatsappLink(payload.data.whatsappLink || null);
       setName("");
       setEmail("");
       setPhone("");
@@ -84,6 +91,7 @@ export const ContactForm = ({ defaultProjectType = "site" }: ContactFormProps) =
   return (
     <form
       onSubmit={onSubmit}
+      aria-busy={loading}
       className="space-y-4 rounded-xl border border-zinc-200 bg-white p-5 shadow-sm"
     >
       <label className="block">
@@ -162,10 +170,23 @@ export const ContactForm = ({ defaultProjectType = "site" }: ContactFormProps) =
 
       {feedback ? (
         <p
+          role="status"
+          aria-live="polite"
           className={`rounded-md px-3 py-2 text-sm ${isError ? "bg-red-50 text-red-700" : "bg-emerald-50 text-emerald-700"}`}
         >
           {feedback}
         </p>
+      ) : null}
+
+      {whatsappLink && !isError ? (
+        <a
+          href={whatsappLink}
+          target="_blank"
+          rel="noreferrer"
+          className="inline-flex w-full justify-center rounded-md border border-zinc-300 px-4 py-2 text-sm font-semibold text-zinc-800 hover:bg-zinc-100"
+        >
+          Continuar no WhatsApp
+        </a>
       ) : null}
 
       <button

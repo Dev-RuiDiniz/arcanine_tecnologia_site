@@ -12,6 +12,13 @@ enum LeadSource {
   BUDGET_FORM
 }
 
+enum LeadStatus {
+  NEW
+  CONTACTED
+  QUALIFIED
+  LOST
+}
+
 enum RoleName {
   ADMIN
   EDITOR
@@ -26,6 +33,7 @@ model Lead {
   projectType String?
   message     String
   source      LeadSource @default(CONTACT_FORM)
+  status      LeadStatus @default(NEW)
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
 }

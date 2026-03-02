@@ -44,6 +44,7 @@ export const BudgetRequestForm = ({
   const [feedback, setFeedback] = useState<string | null>(null);
   const [isError, setIsError] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
+  const [whatsappLink, setWhatsappLink] = useState<string | null>(null);
 
   const acceptedFileTypes = useMemo(
     () => allowedAttachmentMimeTypes.join(","),
@@ -56,6 +57,7 @@ export const BudgetRequestForm = ({
     setFeedback(null);
     setIsError(false);
     setFieldErrors({});
+    setWhatsappLink(null);
 
     const parsed = budgetLeadSchema.safeParse({
       contactName,
@@ -112,7 +114,12 @@ export const BudgetRequestForm = ({
         return;
       }
 
-      setFeedback("Solicitacao enviada com sucesso. Retornaremos com os proximos passos.");
+      const deliveryStatus =
+        payload.data.internalNotificationSent && payload.data.clientConfirmationSent
+          ? "Notificacoes por e-mail enviadas."
+          : "Lead salvo, mas houve falha parcial no envio de e-mails.";
+      setFeedback(`Solicitacao enviada com sucesso. ${deliveryStatus}`);
+      setWhatsappLink(payload.data.whatsappLink || null);
       setContactName("");
       setCompanyName("");
       setEmail("");
@@ -133,6 +140,7 @@ export const BudgetRequestForm = ({
   return (
     <form
       onSubmit={onSubmit}
+      aria-busy={loading}
       className="space-y-4 rounded-xl border border-zinc-200 bg-white p-5 shadow-sm"
     >
       <h2 className="text-lg font-semibold text-zinc-900">Solicitar orcamento</h2>
@@ -291,10 +299,23 @@ export const BudgetRequestForm = ({
 
       {feedback ? (
         <p
+          role="status"
+          aria-live="polite"
           className={`rounded-md px-3 py-2 text-sm ${isError ? "bg-red-50 text-red-700" : "bg-emerald-50 text-emerald-700"}`}
         >
           {feedback}
         </p>
+      ) : null}
+
+      {whatsappLink && !isError ? (
+        <a
+          href={whatsappLink}
+          target="_blank"
+          rel="noreferrer"
+          className="inline-flex w-full justify-center rounded-md border border-zinc-300 px-4 py-2 text-sm font-semibold text-zinc-800 hover:bg-zinc-100"
+        >
+          Continuar no WhatsApp
+        </a>
       ) : null}
 
       <button

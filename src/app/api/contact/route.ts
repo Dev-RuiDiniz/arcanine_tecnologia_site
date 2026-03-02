@@ -20,7 +20,16 @@ export async function POST(request: Request) {
       );
     }
 
-    return NextResponse.json<ApiResult<{ id: string; createdAt: string }>>({
+    return NextResponse.json<
+      ApiResult<{
+        id: string;
+        createdAt: string;
+        status: string;
+        internalNotificationSent: boolean;
+        clientConfirmationSent: boolean;
+        whatsappLink?: string;
+      }>
+    >({
       ok: true,
       data: result.data,
     });
